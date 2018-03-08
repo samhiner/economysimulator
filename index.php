@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html> <html>
 <head>
 <style>
 body {font-family: sans-serif;}
