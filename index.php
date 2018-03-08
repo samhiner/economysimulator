@@ -31,6 +31,7 @@ h3{
     <a href="register.php">Register</a>
 </form>
 
+<!--Release Notes-->
 <br><br><br><br><br><h2>Release Notes</h2>
 <br><h3>Version 0.1.0</h3>
 <p>The first release of the Economy Simulator. This version simple contains the bare elements of the simulator and has will require many adjustments down the road to ensure fairness, a better experience, and an overall better game. The GUI is currently essentially nonexistent, only using default html graphics (AKA, I know it looks disgusting. I promise the full release (1.0) will be bearable). An overview of features in this version is listed below.  </p>
@@ -39,5 +40,6 @@ h3{
 	<li>That</li>
 	<li>The Other</li>
 </ul>
+
 </body>
 </html>
