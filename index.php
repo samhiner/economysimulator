@@ -2,7 +2,6 @@
 <head>
 <style>
 body {font-family: sans-serif;}
-
 /* means those fonts have no vertical padding */
 h2{
     line-height:0px;
@@ -13,7 +12,6 @@ font{
 h3{
     line-height:0px;
 }
-
 </style>
 </head>
 <body>
