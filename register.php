@@ -71,6 +71,7 @@
   
 </script>
 <?php
+
 //when submit button is pressed
 if (isset($_POST['button1']))
 {
