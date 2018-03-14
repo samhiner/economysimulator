@@ -16,7 +16,7 @@
   <h2>Register</h2>
   
   <!--Enter credentials-->
-  <form method="post" action="">
+  <form method="post" action="/registerthankyou.php">
     Username:<br><input type="text" name="username" onkeyup="userVal()" required><br><br>
     Email Address: <br><input type="text" name="email" onkeyup="emailVal()" required><br><br>
     Password:<br><input type="password" name="password" onkeyup="passVal()" required><br><br>
@@ -70,22 +70,3 @@
   }
   
 </script>
-<?php
-
-//when submit button is pressed
-if (isset($_POST['button1']))
-{
-  //connect to the database
-  $connect=mysqli_connect('localhost','root','root','econ_data');
-  if(mysqli_connect_errno($connect))
-  {
-    echo 'Failed to connect';
-  }
-  //assign variable to contents of text boxes
-  $username=$_POST['username'];
-  $email=$_POST['email'];
-  $password=$_POST['password'];
-  //Send variable which equals contents of text boxes to database
-  mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$username','$password','$email')");
-}
-?>
