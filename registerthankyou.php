@@ -2,16 +2,27 @@
 <body>hey</body>
 </html>
 <?php
-  //connect to the database
+  //defines connecting to database to a variable
   $connect=mysqli_connect('localhost','root','root','econ_data');
-  if(mysqli_connect_errno($connect))
-  {
+
+  //checks mysql database connection
+  if(mysqli_connect_errno($connect)) {
     echo 'Failed to connect';
   }
-  //assign variable to contents of text boxes
-  $username=$_POST['username'];
-  $email=$_POST['email'];
-  $password=$_POST['password'];
+
+  //defines the act of "putting the contents of the text boxes through the data cleaner" to a variable
+  $cleanUsername = dataCleaner($_POST["username"])
+  $cleanEmail = dataCleaner($_POST["email"])
+  $cleanPassword = dataCleaner($_POST["password"])
+    
+  //function to clean data to prevent hacking
+  function dataCleaner($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+  }
+
   //Send variable which equals contents of text boxes to database
-  mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$username','$password','$email')");
+  mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$cleanUsername','$cleanPassword','$cleanEmail')");
 ?>
