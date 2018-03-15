@@ -11,9 +11,9 @@
   }
 
   //defines the act of "putting the contents of the text boxes through the data cleaner" to a variable
-  $cleanUsername = dataCleaner($_POST["username"])
-  $cleanEmail = dataCleaner($_POST["email"])
-  $cleanPassword = dataCleaner($_POST["password"])
+  $cleanUsername = dataCleaner($_POST["username"]);
+  $cleanEmail = dataCleaner($_POST["email"]);
+  $cleanPassword = dataCleaner($_POST["password"]);
     
   //function to clean data to prevent hacking
   function dataCleaner($data) {
