@@ -1,4 +1,40 @@
-<!DOCTYPE html> <html>
+<!DOCTYPE html>
+<?php
+  session_start();
+
+  $connect=mysqli_connect('localhost', 'root', 'root', 'econ_data');
+  if(mysqli_connect_errno($connect)) {
+  echo 'Failed to connect'; }
+
+  $username = dataCleaner($_POST['username']);
+  $password = dataCleaner($_POST['password']);
+
+  //function to clean data to prevent hacking
+  function dataCleaner($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+  }
+
+  $result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
+  $count = mysqli_num_rows($result);
+
+  //finds ID of the acct you logged into for session verification later
+  $loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
+
+  //if one database entry is found set the acct info to a variable and go to the dashboard
+  if($count == 1) {
+    $_SESSION['userData'] = $loginData;
+    header("location: dashboard.php");
+  } else {
+    //if one acct not found and data was submitted give error message
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $errorMessage = "Wrong username or password.";
+    }
+  }
+?>
+<html>
 <head>
 <style>
 body {font-family: sans-serif;}
@@ -18,20 +54,21 @@ h3{
 <h2>Welcome to the Economy Simulator Beta - Version 0.1.0!</h2>
 <font size="+1">Log in or register below.</font> <br><br><br>
 
-<!-- Log in area -->
-<form>
+<!-- Log in form -->
+<form method="post" action="">
 	Username: <br>
 	<input type="text" name="username"> <br><br>
 	Password: <br>
-	<input type="text" name="password"> <br><br>
+	<input type="password" name="password"> <br><br>
 	<input type="submit" value="Submit">
     <a href="register.php">Register</a>
 </form>
+	
+<?php echo $errorMessage; ?>
 
-<!--Release Notes-->
 <br><br><br><br><br><h2>Release Notes</h2>
 <br><h3>Version 0.1.0</h3>
-<p>The first release of the Economy Simulator. This version simple contains the bare elements of the simulator and has will require many adjustments down the road to ensure fairness, a better experience, and an overall better game. The GUI is currently essentially nonexistent, only using default html graphics (AKA, I know it looks disgusting. I promise the full release (1.0) will be bearable). An overview of features in this version is listed below.  </p>
+<p>Enter Release Notes here.  </p>
 <ul>
 	<li>This</li>
 	<li>That</li>

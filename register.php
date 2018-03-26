@@ -1,4 +1,39 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<?php
+  //defines connecting to database to a variable
+  $connect=mysqli_connect('localhost','root','root','econ_data');
+  //checks mysql database connection
+  if(mysqli_connect_errno($connect)) {
+    echo 'Failed to connect';
+  }
+  //defines the act of "putting the contents of the text boxes through the data cleaner" to a variable
+  $cleanUsername = dataCleaner($_POST["username"]);
+  $cleanEmail = dataCleaner($_POST["email"]);
+  $cleanPassword = dataCleaner($_POST["password"]);
+    
+  //function to clean data to prevent hacking
+  function dataCleaner($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+  }
+
+  //sees if there is an account with your username
+  $result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$cleanUsername'");
+  $count = mysqli_num_rows($result);
+
+  //if the form was submitted and is not duplicate then send the data to the database
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if($count == 0) {
+      mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$cleanUsername','$cleanPassword','$cleanEmail')");
+      header("location: registerthankyou.php");
+    } else {
+      $errorMessage = "An account with this username already exists. Please choose another username.";
+    }
+  }
+?>
+<html>
 <head>
   <style>
     body {
@@ -16,8 +51,8 @@
   <h2>Register</h2>
   
   <!--Enter credentials-->
-  <form method="post" action="/registerthankyou.php">
-    Username:<br><input type="text" name="username" onkeyup="userVal()" required><br><br>
+  <form method="post" action="">
+    Username:<br><input type="text" name="username" onkeyup="userVal()" onkeyup ="" required><br><br>
     Email Address: <br><input type="text" name="email" onkeyup="emailVal()" required><br><br>
     Password:<br><input type="password" name="password" onkeyup="passVal()" required><br><br>
     Confirm Password:<br><input type="password" name="passwordconf" onkeyup="passVal()" required><br><br>
@@ -25,10 +60,11 @@
     <input type="submit" value="Submit" disabled name="button1" id="submitButton">
   </form>
   
+  <div id='errorField'><?php echo $errorMessage; ?></div>
+
   <!-- Where it is displayed that passwords do not match.-->
   <p id="noPassMatch"></p>
-</body>
-</html>
+</body></html>
 <script>
   /*Assigns variables to contents of text boxes*/
   var user = document.getElementsByName("username")[0];
@@ -53,8 +89,9 @@
     }
   }
   
-  /*Hides and shows submit button based on fields being filled in*/
+  /*Hides and shows submit button based on fields being filled in. Also always hides error message.*/
   function userVal() {
+    document.getElementById("errorField").classList.add('hidden');
     if (user.value.length < 1) {
       document.getElementById('submitButton').disabled = true;
     } else {
@@ -68,5 +105,4 @@
       passVal()
     }
   }
-  
 </script>

@@ -1,17 +1,4 @@
 <!DOCTYPE html><html>
-<body>hey</body>
-</html>
-<?php
-  //connect to the database
-  $connect=mysqli_connect('localhost','root','root','econ_data');
-  if(mysqli_connect_errno($connect))
-  {
-    echo 'Failed to connect';
-  }
-  //assign variable to contents of text boxes
-  $username=$_POST['username'];
-  $email=$_POST['email'];
-  $password=$_POST['password'];
-  //Send variable which equals contents of text boxes to database
-  mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$username','$password','$email')");
-?>
+<body>
+  <p>Thank you for registering for The Economy Simulator. Click the link provided in the email sent to you within the next 24 hours to verify your registration. If your account is not verified in 24 hours, you will have to restart the registration process.</p>
+</body></html>
