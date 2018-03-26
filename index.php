@@ -26,7 +26,7 @@
   //if one database entry is found set the acct info to a variable and go to the dashboard
   if($count == 1) {
     $_SESSION['userData'] = $loginData;
-    header("location: dashboard.php");
+    header("location: home.php");
   } else {
     //if one acct not found and data was submitted give error message
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
