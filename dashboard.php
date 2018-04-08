@@ -1,22 +1,25 @@
-<!DOCTYPE html>
-<?php
-  include('verify.php');
-  $username = $userData["username"];
-?>
-<html><body>
-<p>Welcome <?php echo $username; ?>.</p>
-<h3>Your Computers</h3>
-<?php echo $godComp; ?>
-<h3>God's Computers</h3>
-<?php echo $yourComp; ?><br>
+<!DOCTYPE html><?php
 
-<form method='post' id='sell'>
-  <input type="text" value="Amount"><br>
-  <input type="submit" value="Sell to God"><br><br><br>
-</form>
+//goes to whichever tab they clicked on
+if(isset($_POST['main'])){
+  header("location:dashboard.php");
+}
+if(isset($_POST['trade'])){
+  header("location:commoditiesmarket.php");
+}
+if(isset($_POST['stock'])){
+  header("location:stockmarket.php");
+} 
 
-<form method='post' id='buy'>
-  <input type="text" value="Amount"><br>
-  <input type="submit" value="Buy from God">
-</form>
+?><html><body>
+
+<div class="tab">
+  <form method='post'>
+    <input type='submit' name='main' value="Dashboard">
+    <input type='submit' name='trade' value="Commodities Market">
+    <input type='submit' name='stock' value="Stock Market">
+  </form>
+</div>
+
+<br><p>dashboard.</p>
 </body></html>

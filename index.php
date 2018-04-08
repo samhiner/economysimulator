@@ -19,17 +19,14 @@
 
   $result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
   $count = mysqli_num_rows($result);
-
-  //finds ID of the acct you logged into for session verification later
   $loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
 
   //if one database entry is found set the acct info to a variable and go to the dashboard
-  if($count == 1) {
-    $_SESSION['userData'] = $loginData;
-    header("location: home.php");
-  } else {
-    //if one acct not found and data was submitted give error message
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
+    if($count == 1) {
+      $_SESSION['userData'] = $loginData;
+      header("location: home.php");
+    } else {
       $errorMessage = "Wrong username or password.";
     }
   }
