@@ -8,40 +8,37 @@ if(mysqli_connect_errno($connect)) {
 
 //redirect player if already registered
 $userData = $_SESSION['userData'];
-$playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userData['id']'");
-
+$userID = $userData['id'];
+$playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userID'");
 $playerExist = mysqli_num_rows($playerTable);
-
-if($playerExist = 1) {
-
+if($playerExist == 1) {
   header("location: dashboard.php");
- 
 }
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
   if ($_POST['a'] == 'bike') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'tv') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'shield') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'phone') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'car') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'laptop') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'smarttv') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'dogtags') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'shaver') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   } elseif ($_POST['a'] == 'blender') {
-    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userData['id']','20')");
+    mysqli_query($connect,"INSERT INTO game1players(id,computers) VALUES('$userID','20')");
   }
-  header('location:dashboard.php');
+  header("location:dashboard.php");
 }
 
 ?>
@@ -62,3 +59,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </form>
 
 </body></html>
+

@@ -15,6 +15,7 @@ if(!isset($_SESSION['userData'])){
 
 //ensure acct is linked to profile
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
+$playerCount = mysqli_num_rows($playerTable);
 if($playerCount != 1) {
   header("location: home.php")
 }

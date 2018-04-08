@@ -21,7 +21,7 @@
   $count = mysqli_num_rows($result);
   $loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
 
-  //if one database entry is found set the acct info to a variable and go to the dashboard
+  //if one database entry is found set the acct info to a variable and go to home
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
     if($count == 1) {
       $_SESSION['userData'] = $loginData;
