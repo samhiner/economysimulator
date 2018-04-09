@@ -1,5 +1,7 @@
 <!DOCTYPE html><?php
 
+include('verify.php');
+
 //goes to whichever tab they clicked on
 if(isset($_POST['main'])){
   header("location:dashboard.php");

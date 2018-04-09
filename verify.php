@@ -7,9 +7,10 @@ if(mysqli_connect_errno($connect)) {
   echo 'Failed to connect';
 }
 
+//make sure they are logged in or send to login page
 $userData = $_SESSION['userData'];
+$userCheckID = $userData['id'];
 if(!isset($_SESSION['userData'])){
-
   header("location: index.php");
 }
 
@@ -17,7 +18,7 @@ if(!isset($_SESSION['userData'])){
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerCount = mysqli_num_rows($playerTable);
 if($playerCount != 1) {
-  header("location: home.php")
+  header("location: home.php");
 }
 
 ?>
