@@ -87,6 +87,8 @@ if(isset($_POST['make'])) {
 	//DO THIS make sure no values are less than 1 before executing query
 	$makeQuery = "UPDATE game1players SET $material1 = $material1 - 1, $material2 = $material2 - 1, $material3 = $material3 - 1, $product = $product + 1 WHERE id='$userCheckID'";
 	mysqli_query($connect,$makeQuery);
+	echo "<meta http-equiv='refresh' content='0'>";
+
 }
 
 ?><html><body>
@@ -99,7 +101,15 @@ if(isset($_POST['make'])) {
 	</form>
 </div>
 
-<br><p>Insert data.</p><br><br><br>
+<?php 
+echo "You have $" . $playerData["balance"] . "<br>";
+echo "You have " . $playerData[$material1] . " " . $showMaterial1 . "<br>";
+echo "You have " . $playerData[$material2] . " " . $showMaterial2 . "<br>";
+echo "You have " . $playerData[$material3] . " " . $showMaterial3 . "<br>";
+echo "You have " . $playerData[$product] . " " . $showProduct;
+?>
+
+<br><p>Insert more data.</p><br><br><br>
 
 <h3>Your Factory:</h3><br>
 Product: 1 <?php echo $showProduct; ?> <br>
