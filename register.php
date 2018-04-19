@@ -39,11 +39,6 @@
     body {
       font-family: sans-serif;
     }
-    
-    /* can make stuff invisible/not invisible */
-    .hidden{
-      display:none;
-    }
   </style>
   <title>Register</title>
 </head>
@@ -52,8 +47,8 @@
   
   <!--Enter credentials-->
   <form method="post" action="">
-    Username:<br><input type="text" name="username" onkeyup="userVal()" onkeyup ="" required><br><br>
-    Email Address: <br><input type="text" name="email" onkeyup="emailVal()" required><br><br>
+    Username:<br><input type="text" name="username" onkeyup="genVal(user)" onkeyup ="" required><br><br>
+    Email Address: <br><input type="text" name="email" onkeyup="genVal(email)" required><br><br>
     Password:<br><input type="password" name="password" onkeyup="passVal()" required><br><br>
     Confirm Password:<br><input type="password" name="passwordconf" onkeyup="passVal()" required><br><br>
     
@@ -89,20 +84,14 @@
     }
   }
   
-  /*Hides and shows submit button based on fields being filled in. Also always hides error message.*/
-  function userVal() {
+  /*Hides and shows submit button based on fields being filled in. Also hides error message by default.*/
+  function genVal(type) {
     document.getElementById("errorField").classList.add('hidden');
-    if (user.value.length < 1) {
+    if (type.value.length < 1) {
       document.getElementById('submitButton').disabled = true;
     } else {
       passVal()
     }
   }
-  function emailVal() {
-    if (email.value.length < 1) {
-      document.getElementById('submitButton').disabled = true;
-    } else {
-      passVal()
-    }
-  }
+
 </script>

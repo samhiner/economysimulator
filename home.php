@@ -25,25 +25,25 @@ if($playerExist == 1) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
 	if ($_POST['a'] == 'bike') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','1','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','0','2000')");
 	} elseif ($_POST['a'] == 'tv') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','2','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','1','2000')");
 	} elseif ($_POST['a'] == 'shield') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','3','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','2','2000')");
 	} elseif ($_POST['a'] == 'phone') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','4','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','3','2000')");
 	} elseif ($_POST['a'] == 'car') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','5','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','4','2000')");
 	} elseif ($_POST['a'] == 'laptop') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','6','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','5','2000')");
 	} elseif ($_POST['a'] == 'smarttv') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','7','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','6','2000')");
 	} elseif ($_POST['a'] == 'dogtags') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','8','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','7','2000')");
 	} elseif ($_POST['a'] == 'shaver') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','9','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','8','2000')");
 	} elseif ($_POST['a'] == 'blender') {
-		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','10','2000')");
+		mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','9','2000')");
 	}
 	header("location:dashboard.php");
 }
