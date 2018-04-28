@@ -27,7 +27,8 @@
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if($count == 0) {
       mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$cleanUsername','$cleanPassword','$cleanEmail')");
-      header("location: registerthankyou.php");
+      $hideAll = "<script>document.getElementById('all').style.display = 'none';</script>";
+	  $hideThank = "<script>document.getElementById('thank').style.display = 'block';</script>";
     } else {
       $errorMessage = "An account with this username already exists. Please choose another username.";
     }
@@ -39,10 +40,14 @@
     body {
       font-family: sans-serif;
     }
+	.vis {
+		display: none;
+	}
   </style>
   <title>Register</title>
 </head>
 <body>
+<div id='all'>
   <h2>Register</h2>
   
   <!--Enter credentials-->
@@ -54,29 +59,35 @@
     
     <input type="submit" value="Submit" disabled name="button1" id="submitButton">
   </form>
-  
+</div>
   <div id='errorField'><?php echo $errorMessage; ?></div>
 
   <!-- Where it is displayed that passwords do not match.-->
-  <p id="noPassMatch"></p>
+  <p id="noPassMatch" class='vis'>Passwords do not match</p>
+  
+
+<div id='thank' class='vis'>
+  <p>Thank you for registering for The Economy Simulator. Click the link provided in the email sent to you within the next 24 hours to verify your registration. If your account is not verified in 24 hours, you will have to restart the registration process.</p>
+</div>
+
+<?php
+echo $hideAll;
+echo $hideThank;
+?>
+
 </body></html>
 <script>
-  /*Assigns variables to contents of text boxes*/
-  var user = document.getElementsByName("username")[0];
-  var email = document.getElementsByName("email")[0];  
-  var pass = document.getElementsByName("password")[0];
-  var confPass = document.getElementsByName("passwordconf")[0];
-  
   /*disables submit button by default*/
   document.getElementById('submitButton').disabled = true;
   /*Hides and shows submit button/error message based on passwords being the same and not being empty*/
   function passVal() {
+	var pass = document.getElementsByName("password")[0];
+    var confPass = document.getElementsByName("passwordconf")[0];
     if (pass.value != confPass.value) {
-      document.getElementById('noPassMatch').innerHTML = "Passwords do not match";
       document.getElementById('submitButton').disabled = true;
-      document.getElementById("noPassMatch").classList.remove('hidden');
+      document.getElementById("noPassMatch").style.display = 'block';
     } else {
-      document.getElementById("noPassMatch").classList.add('hidden');
+      document.getElementById("noPassMatch").style.display = 'none';
       document.getElementById('submitButton').disabled = false;
     }
     if (pass.value.length < 1) {

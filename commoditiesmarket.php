@@ -4,7 +4,7 @@ include('verify.php');
 
 //goes to whichever tab they clicked on
 if (isset($_POST['main'])) {
-	header("location:dashboard.php");
+	header("location:index.php");
 }
 if(isset($_POST['trade'])){
 	header("location:commoditiesmarket.php");
@@ -97,7 +97,7 @@ echo "You have $" . $youArray["balance"];
 	<input type="text" value="Amount" name='glasssellamt'><br>
 	<input type="submit" value="Sell Glass">
 </form>
-You have <?php look(glass); ?> Glass. One Glass costs $100.<br><br>
+You have <?php look('glass'); ?> Glass. One Glass costs $100.<br><br>
 
 <h3>Plastic</h3>
 <form method='post'>
@@ -108,7 +108,7 @@ You have <?php look(glass); ?> Glass. One Glass costs $100.<br><br>
 	<input type="text" value="Amount" name='plasticsellamt'><br>
 	<input type="submit" value="Sell Plastic">
 </form>
-You have <?php look(plastic); ?> Plastic. One Plastic costs $100.<br><br>
+You have <?php look('plastic'); ?> Plastic. One Plastic costs $100.<br><br>
 
 <h3>Aluminum</h3>
 <form method='post'>
@@ -119,7 +119,7 @@ You have <?php look(plastic); ?> Plastic. One Plastic costs $100.<br><br>
 	<input type="text" value="Amount" name='alumsellamt'><br>
 	<input type="submit" value="Sell Aluminum">
 </form>
-You have <?php look(alum); ?> Aluminum. One Aluminum costs $100.<br><br>
+You have <?php look('alum'); ?> Aluminum. One Aluminum costs $100.<br><br>
 
 <h3>Silicon</h3>
 <form method='post'>
@@ -130,7 +130,7 @@ You have <?php look(alum); ?> Aluminum. One Aluminum costs $100.<br><br>
 	<input type="text" value="Amount" name='silisellamt'><br>
 	<input type="submit" value="Sell Silicon">
 </form>
-You have <?php look(sili); ?> Silicon. One Silicon costs $100.<br><br>
+You have <?php look('sili'); ?> Silicon. One Silicon costs $100.<br><br>
 
 <h3>Steel</h3>
 <form method='post'>

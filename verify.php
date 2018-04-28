@@ -11,7 +11,7 @@ if(mysqli_connect_errno($connect)) {
 $userData = $_SESSION['userData'];
 $userCheckID = $userData['id'];
 if(!isset($_SESSION['userData'])){
-  header("location: index.php");
+  header("location: login.php");
 }
 
 //ensure acct is linked to profile
