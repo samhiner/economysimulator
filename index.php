@@ -98,7 +98,7 @@ if (isset($_POST['make'])) {
 	}
 }
 
-//disable make button if they do not have supplies NO WORK BELOW NOW TRY SETTING VARIABLE
+//disable make button if they do not have supplies
 if(($numMaterial1 <= 0) && ($numMaterial2 <= 0) && ($numMaterial3 <= 0)) {
 	$makeScript = '<script>document.getElementById("make").disabled = true;</script>';
 	$errorMessage2 = "You do not have the required materials to execute this trade. You need more X, Y, and Z";
@@ -109,10 +109,39 @@ if (($numProduct1 <= 0) or ($numProduct2 <= 0)) {
 	$showProduct1 = $itemList[$playerClass][10];
 	$showProduct2 = $itemList[$playerClass][11];
 	$errorMessage = "Your factories are unable to produce anything until you have more $showProduct1 and/or $showProduct2";
+} else {
+	//could put time here?
 }
 
-//remove one of each product every 24 hours FINISH ME
-echo date('m-d-Y h:i:sa');
+//remove one of each product for every day since last login
+$lastDate = date(strtotime($timeArray['lastday']));
+$lastDiff = time() - $lastDate;
+$diffHours =  $lastDiff / 3600;
+if ($diffHours >= 1) {
+	$roundDiff = floor($diffHours);
+	$leftover = $lastDiff % 3600;
+	mysqli_query($connect,"UPDATE game1time SET leftover='$Leftover' WHERE id='$userCheckID'")
+	//TAKE AWAY PRODUCTS AS WELL
+}
+
+$time = date('Y-m-d h:i:sa');
+$doneTime = substr($time,0,-2); //the make code should not work according to this what the **
+//mysqli_query($connect,"UPDATE game1time SET lastday='$doneTime' WHERE id='$userCheckID'");
+//
+
+//put in verify maybe
+if (($numProduct1 > 0) && ($numProduct2 > 0)) {
+	$haveMaterial = $timeArray['haveMaterial'];
+	$time = date('Y-m-d h:i:sa');
+	//if the fact that you have products is not yet registered register it and start countdown again.
+	if ($haveMaterial == 0) {
+		mysqli_query($connect,"UPDATE game1time SET lastday='$time', haveMaterial='1' WHERE id='$userCheckID'");
+	} else {
+		echo " ";
+	}
+} else {
+	//set havematerial to 0
+}
 
 ?><html><body>
 
