@@ -1,51 +1,52 @@
-<!DOCTYPE html>
 <?php
-  session_start();
+	session_start();
 
-  $connect=mysqli_connect('localhost', 'root', 'root', 'econ_data');
-  if(mysqli_connect_errno($connect)) {
-  echo 'Failed to connect'; }
+	$connect=mysqli_connect('localhost', 'root', 'root', 'econ_data');
+	if(mysqli_connect_errno($connect)) {
+		echo 'Failed to connect';
+	}
 
-  $username = dataCleaner($_POST['username']);
-  $password = dataCleaner($_POST['password']);
+	$username = dataCleaner($_POST['username']);
+	$password = dataCleaner($_POST['password']);
 
-  //function to clean data to prevent hacking
-  function dataCleaner($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-  }
+	//function to clean data to prevent hacking
+	function dataCleaner($data) {
+		$data = trim($data);
+		$data = stripslashes($data);
+		$data = htmlspecialchars($data);
+		return $data;
+	}
 
-  $result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
-  $count = mysqli_num_rows($result);
-  $loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
+	$result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
+	$count = mysqli_num_rows($result);
+	$loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
 
-  //if one database entry is found set the acct info to a variable and go to home
-  if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
-    if($count == 1) {
-      $_SESSION['userData'] = $loginData;
-      header("location: home.php");
-    } else {
-      $errorMessage = "Wrong username or password.";
-    }
-  }
+	//if one database entry is found set the acct info to a variable and go to home
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
+		if($count == 1) {
+			$_SESSION['userData'] = $loginData;
+			header("location: home.php");
+		} else {
+			$errorMessage = "Wrong username or password.";
+		}
+	}
 ?>
 <html>
 <head>
 <style>
-body {font-family: sans-serif;}
-/* means those fonts have no vertical padding */
-h2{
-    line-height:0px;
-}
-font{
-    line-height:0px;
-}
-h3{
-    line-height:0px;
-}
+	body {
+		font-family: sans-serif;
+	}
+	font {
+		line-height:0px;
+	}
+	h3 {
+		line-height:0px;
+	}
 </style>
+
+<title>Economy Simulator</title>
+
 </head>
 <body>
 <h2>Welcome to the Economy Simulator Beta - Version 0.1.0!</h2>

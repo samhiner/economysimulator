@@ -13,7 +13,14 @@ if(isset($_POST['stock'])){
   header("location:stockmarket.php");
 } 
 
-?><html><body>
+?>
+<html>
+<head>
+
+<title>Economy Simulator</title>
+
+</head>
+<body>
 
 <div class="tab">
   <form method='post'>
@@ -24,4 +31,6 @@ if(isset($_POST['stock'])){
 </div>
 
 <br><p>Buying and selling stocks</p>
-</body></html>
+
+</body>
+</html>
