@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 include('verify.php');
 
@@ -14,36 +13,6 @@ if(isset($_POST['trade'])){
 if(isset($_POST['stock'])){
 	header("location:stockmarket.php");
 }
-
-function classItems($m1,$m2,$m3,$p) {
-	$GLOBALS['material1'] = $m1;
-	$GLOBALS['material2'] = $m2;
-	$GLOBALS['material3'] = $m3;
-	$GLOBALS['product'] = $p;
-}
-
-$playerData = mysqli_fetch_array($playerTable,MYSQLI_ASSOC);
-$playerClass = $playerData['class'];
-
-//gets materials + products based on user's class
-//KEY: 0, 1, 2: Visible Materials. 3: Visible Product. 4, 5, 6: Internal Materials. 7: Internal Product. 8, 9: Internal Supplies. 10, 11: Visible Supplies
-$itemList = array
-(
-	array("Glass","Plastic","Aluminum","Bicycle","glass","plastic","alum","bike","shaver","blender","Shaver","Blender"),
-	array("Glass","Plastic","Silicon","TV","glass","plastic","sili","tv","car","bike","Car","Bike"),
-	array("Glass","Plastic","Steel","Shield","glass","plastic","steel","shield","laptop","phone","Laptop","Phone"),
-	array("Glass","Aluminum","Silicon","Phone","glass","alum","sili","phone","tv","smarttv","TV","Smart TV"),
-	array("Glass","Aluminum","Steel","Car","glass","alum","steel","car","shaver","blender","Shaver","Blender"),
-	array("Glass","Silicon","Steel","Laptop","glass","sili","steel","laptop","tv","smarttv","TV","Smart TV"),
-	array("Plastic","Aluminum","Silicon","Smart TV","plastic","alum","sili","smarttv","car","bike","Car","Bike"),
-	array("Plastic","Aluminum","Steel","Dog Tags","plastic","alum","steel","dogtags","laptop","phone","Laptop","Phone"),
-	array("Plastic","Silicon","Steel","Shaver","plastic","sili","steel","shaver","dogtags","shield","Dog Tags","Shield"),
-	array("Aluminum","Silicon","Steel","Blender","alum","sili","steel","blender","dogtags","shield","Dog Tags","Shield")
-);
-classItems($itemList[$playerClass][4],$itemList[$playerClass][5],$itemList[$playerClass][6],$itemList[$playerClass][7]);
-
-$timeQuery = mysqli_query($connect,"SELECT * FROM game1time WHERE id='$userCheckID'");
-$timeArray = mysqli_fetch_array($timeQuery,MYSQLI_ASSOC);
 
 //this variable signifies that manufacturing has started but no exchange has occured when true.
 $makeBool = $timeArray['makeBool'];
@@ -69,21 +38,15 @@ if ($makeBool == 1) {
 	$makeScript = '<script>document.getElementById("timer").disabled = true;</script>';
 }
 
-$numMaterial1 = $playerData[$material1];
-$numMaterial2 = $playerData[$material2];
-$numMaterial3 = $playerData[$material3];
-$numProduct1 = $playerData[$itemList[$playerClass][8]];
-$numProduct2 = $playerData[$itemList[$playerClass][9]];
-
 //start manufacturing process when button clicked
 if (isset($_POST['make'])) {
 	//make sure they have required materials
 	if(($numMaterial1 > 0) && ($numMaterial2 > 0) && ($numMaterial3 > 0)) {
 		//make sure they have daily supplies (prevents inspect element exploit on disabled button)
-		if (($numProduct1 <= 0) && ($numProduct2 <= 1)) {
-			$showProduct1 = $itemList[$playerClass][10];
-			$showProduct2 = $itemList[$playerClass][11];
-			$message = "Your factories are unable to produce anything until you have more $showProduct1 and/or $showProduct2";
+		if (($numSupply1 <= 0) && ($numSupply12 <= 1)) {
+			$showSupply1 = $itemList[$playerClass][10];
+			$showSupply2 = $itemList[$playerClass][11];
+			$message = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
 			echo "<script>alert('$message');</script>";
 		} else {
 			$addedDate = date("Y-m-d H:i:sa",strtotime('2 hour'));
@@ -104,46 +67,21 @@ if(($numMaterial1 <= 0) && ($numMaterial2 <= 0) && ($numMaterial3 <= 0)) {
 	$errorMessage2 = "You do not have the required materials to execute this trade. You need more X, Y, and Z";
 }
 
-if (($numProduct1 <= 0) or ($numProduct2 <= 0)) {
+if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 	$makeScript = '<script>document.getElementById("make").disabled = true;</script>';
-	$showProduct1 = $itemList[$playerClass][10];
-	$showProduct2 = $itemList[$playerClass][11];
-	$errorMessage = "Your factories are unable to produce anything until you have more $showProduct1 and/or $showProduct2";
-} else {
-	//could put time here?
+	$showSupply1 = $itemList[$playerClass][10];
+	$showSupply2 = $itemList[$playerClass][11];
+	$errorMessage = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
 }
 
-//remove one of each product for every day since last login
-$lastDate = date(strtotime($timeArray['lastday']));
-$lastDiff = time() - $lastDate;
-$diffHours =  $lastDiff / 3600;
-if ($diffHours >= 1) {
-	$roundDiff = floor($diffHours);
-	$leftover = $lastDiff % 3600;
-	mysqli_query($connect,"UPDATE game1time SET leftover='$Leftover' WHERE id='$userCheckID'")
-	//TAKE AWAY PRODUCTS AS WELL
-}
+?>
+<html>
+<head>
 
-$time = date('Y-m-d h:i:sa');
-$doneTime = substr($time,0,-2); //the make code should not work according to this what the fuck
-//mysqli_query($connect,"UPDATE game1time SET lastday='$doneTime' WHERE id='$userCheckID'");
-//
+<title>Economy Simulator</title>
 
-//put in verify maybe
-if (($numProduct1 > 0) && ($numProduct2 > 0)) {
-	$haveMaterial = $timeArray['haveMaterial'];
-	$time = date('Y-m-d h:i:sa');
-	//if the fact that you have products is not yet registered register it and start countdown again.
-	if ($haveMaterial == 0) {
-		mysqli_query($connect,"UPDATE game1time SET lastday='$time', haveMaterial='1' WHERE id='$userCheckID'");
-	} else {
-		echo " ";
-	}
-} else {
-	//set havematerial to 0
-}
-
-?><html><body>
+</head>
+<body>
 
 <div class="tab">
 	<form method='post'>
@@ -186,6 +124,7 @@ if (isset($errorMessage)) {
 	echo $errorMessage;
 }
 ?>
+
 <script>
 //Finds time until item is made.
 if (document.getElementById('timer').disabled == false) {
@@ -214,8 +153,12 @@ if (document.getElementById('timer').disabled == false) {
 
 <h3>Your Supplies:</h3>
 You have:<br>
+
 <?php 
 echo $playerData[$itemList[$playerClass][8]] . " " . $itemList[$playerClass][10] . "s<br>";
 echo $playerData[$itemList[$playerClass][9]] . " " . $itemList[$playerClass][11] . "s"; ?>
+
 <br><br>Go to the Commodities Market to buy more of these items
-</body></html>
+
+</body>
+</html>

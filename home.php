@@ -1,15 +1,14 @@
-<!DOCTYPE html>
 <?php
 session_start();
 $connect = mysqli_connect('localhost', 'root', 'root', 'econ_data');
-if(mysqli_connect_errno($connect)) {
+if (mysqli_connect_errno($connect)) {
 	echo 'Failed to connect';
 }
 
 //ensure they have acct (didn't just use verify.php bc that has profile stuff thats defined here)
 $userData = $_SESSION['userData'];
 $userCheckID = $userData['id'];
-if(!isset($_SESSION['userData'])){
+if (!isset($_SESSION['userData'])){
 	header("location: login.php");
 }
 
@@ -18,7 +17,7 @@ $userData = $_SESSION['userData'];
 $userCheckID = $userData['id'];
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerExist = mysqli_num_rows($playerTable);
-if($playerExist == 1) {
+if ($playerExist == 1) {
 	header("location: index.php");
 }
 
@@ -36,7 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 ?>
-<html><body>
+<html>
+<head>
+
+<title>Economy Simulator</title>
+
+</head>
+<body>
 <h3>Choose which item you would like to produce.</h3>
 <form method="post">
 	<input type="radio" value="0" name="a"> Bicycles <br>
@@ -51,4 +56,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<input type="radio" value="9" name="a"> Blenders <br> <br>
 	<input type="submit" value="Submit">
 </form>
-</body></html>
+</body>
+</html>

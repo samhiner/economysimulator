@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 include('verify.php');
 
@@ -15,12 +14,6 @@ if (isset($_POST['stock'])) {
 
 $youQuery = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
 $youArray = mysqli_fetch_array($youQuery,MYSQLI_ASSOC);
-
-//fetches how many of item person has
-function look($item) {
-	global $youArray;
-	echo $youArray["$item"];
-}
 
 function trade($itemTradeAmt, $item, $type) {
 	global $connect;
@@ -78,7 +71,13 @@ if (isset($_POST['glasssellamt'])) {
 echo "You have $" . $youArray["balance"];
 
 ?>
-<html><body>
+<html>
+<head>
+
+<title>Economy Simulator</title>
+
+</head>
+<body>
 
 <div class="tab">
 	<form method='post'>
@@ -97,7 +96,7 @@ echo "You have $" . $youArray["balance"];
 	<input type="text" value="Amount" name='glasssellamt'><br>
 	<input type="submit" value="Sell Glass">
 </form>
-You have <?php look('glass'); ?> Glass. One Glass costs $100.<br><br>
+You have <?php $youArray['glass']; ?> Glass. One Glass costs $100.<br><br>
 
 <h3>Plastic</h3>
 <form method='post'>
@@ -108,7 +107,7 @@ You have <?php look('glass'); ?> Glass. One Glass costs $100.<br><br>
 	<input type="text" value="Amount" name='plasticsellamt'><br>
 	<input type="submit" value="Sell Plastic">
 </form>
-You have <?php look('plastic'); ?> Plastic. One Plastic costs $100.<br><br>
+You have <?php $youArray['plastic']; ?> Plastic. One Plastic costs $100.<br><br>
 
 <h3>Aluminum</h3>
 <form method='post'>
@@ -119,7 +118,7 @@ You have <?php look('plastic'); ?> Plastic. One Plastic costs $100.<br><br>
 	<input type="text" value="Amount" name='alumsellamt'><br>
 	<input type="submit" value="Sell Aluminum">
 </form>
-You have <?php look('alum'); ?> Aluminum. One Aluminum costs $100.<br><br>
+You have <?php $youArray['alum']; ?> Aluminum. One Aluminum costs $100.<br><br>
 
 <h3>Silicon</h3>
 <form method='post'>
@@ -130,7 +129,7 @@ You have <?php look('alum'); ?> Aluminum. One Aluminum costs $100.<br><br>
 	<input type="text" value="Amount" name='silisellamt'><br>
 	<input type="submit" value="Sell Silicon">
 </form>
-You have <?php look('sili'); ?> Silicon. One Silicon costs $100.<br><br>
+You have <?php $youArray['sili']; ?> Silicon. One Silicon costs $100.<br><br>
 
 <h3>Steel</h3>
 <form method='post'>
@@ -141,5 +140,7 @@ You have <?php look('sili'); ?> Silicon. One Silicon costs $100.<br><br>
 	<input type="text" value="Amount" name='steelsellamt'><br>
 	<input type="submit" value="Sell Steel">
 </form>
-You have <?php look(steel); ?> Steel. One Steel costs $100.<br><br>
-</body></html>
+You have <?php $youArray['steel']; ?> Steel. One Steel costs $100.<br><br>
+
+</body>
+</html>
