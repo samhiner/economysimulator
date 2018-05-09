@@ -80,13 +80,19 @@ if (($numSupply1 > 0) && ($numSupply2 > 0)) {
 		$lastDiff = time() - $lastDate;
 		//60*60*24 = 86400
 		$diffDays =  floor($lastDiff / 86400);
+		echo $lastDate . ' ' . $lastDiff . ' ' . $diffDays . 'br';
 		if ($diffDays >= 1) {
 			$leftover = $lastDiff % 86400;
-			$newLastDate = date($time - $leftover);
-			mysqli_query($connect,"UPDATE game1time SET lastday='$time' WHERE id='$userCheckID'"); //define time
-			$newSupply1 = $numSupply1 - $diffDays;
-			$newSupply2 = $numSupply2 - $diffDays;
-			mysqli_query($connect,"UPDATE game1players SET $supply1='$newSupply1', $supply2='$newSupply2' WHERE id='$userCheckID'");
+			$newLastDate = date('Y-m-d H:i:sa', time() - $leftover);
+			echo time() . ' ' . $leftover . ' ' . $newLastDate . 'br';
+			mysqli_query($connect,"UPDATE game1time SET lastday='$newLastDate' WHERE id='$userCheckID'");
+			$newSupply1 = limitZero($numSupply1 - $diffDays);
+			$newSupply2 = limitZero($numSupply2 - $diffDays);
+			echo $newSupply1 . 'br';
+			$string = "UPDATE game1players SET $supply1='$newSupply1', $supply2='$newSupply2' WHERE id='$userCheckID'";
+			echo $string;
+			mysqli_query($connect,$string);
+			echo "<meta http-equiv='refresh' content='0'>";
 		}
 	}
 } else {
