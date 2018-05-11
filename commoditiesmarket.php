@@ -12,67 +12,71 @@ if (isset($_POST['stock'])) {
 	header("location:stockmarket.php");
 } 
 
-$youQuery = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
-$youArray = mysqli_fetch_array($youQuery,MYSQLI_ASSOC);
+//processes trades
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
+	//do work not specific to buying/selling (minimizes repeated lines)
+	$amt = $_POST['amt'];
+	$balance = $playerData['balance'];
+	$price = 100 * $amt;
+	
+	if(isset($_POST['buy'])) {
+		$itemName = $_POST['buy'];
+		$youItems = $playerData[$itemName];
+	
+		$newYouItems = $youItems + $amt;
+		$newBalance = $balance - $price;
 
-function trade($itemTradeAmt, $item, $type) {
-	global $connect;
-	global $youArray;
-	$youItems = $youArray["$item"];
-	$balance = $youArray["balance"];
-
-	//do calculations for amount owed in trade
-	if ($type == 1) {
-		$buyAmt = $_POST[$itemTradeAmt];
-		$newYouItems = $youItems + $buyAmt;
-		$cost = '100' * $buyAmt;
-		$newBalance = $balance - $cost;
-	} else {
-		$sellAmt = $_POST[$itemTradeAmt];
-		$newYouItems = $youItems - $sellAmt;
-		$cost = '100' * $sellAmt;
-		$newBalance = $balance + $cost;
-	}
-	//makes sure trade does not have any create any negative balances and make trade
-	if(($newBalance >= 0) && ($newYouItems >= 0)) {
-		global $userCheckID;
-		mysqli_query($connect,"UPDATE game1players SET $item=$newYouItems WHERE id=$userCheckID");
-		mysqli_query($connect,"UPDATE game1players SET balance=$newBalance WHERE id=$userCheckID");
-		echo "<meta http-equiv='refresh' content='0'>";
-	} else {
-		$message = "Not enough items";
-		echo "<script>alert('$message');</script>";
+		//ensures you have funds for trade
+		if($newBalance >= 0) {
+			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+			echo "<meta http-equiv='refresh' content='0'>";
+		} else {
+			echo "<script>alert('You do not have enough items to make this trade');</script>";
+		}
+	} elseif (isset($_POST['sell'])) {
+		$itemName = $_POST['sell'];
+		$youItems = $playerData[$itemName];
+		
+		$newYouItems = $youItems - $amt;
+		$newBalance = $balance + $price;
+		
+		//ensures you have enough items for trade
+		if($newYouItems >= 0) {
+			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+			echo "<meta http-equiv='refresh' content='0'>";
+		} else {
+			echo "<script>alert('You do not have enough items to make this trade');</script>";
+		}
 	}
 }
 
-//run trade function when user submits any trade
-if (isset($_POST['glasssellamt'])) {
-	trade(glasssellamt, glass, 0);
-} elseif (isset($_POST['glassbuyamt'])) {
-	trade(glassbuyamt, glass, 1);
-} elseif (isset($_POST['plasticsellamt'])) {
-	trade(plasticsellamt, plastic, 0);
-} elseif (isset($_POST['plasticbuyamt'])) {
-	trade(plasticbuyamt, plastic, 1);
-} elseif (isset($_POST['alumsellamt'])) {
-	trade(alumsellamt, alum, 0);
-} elseif (isset($_POST['alumbuyamt'])) {
-	trade(alumbuyamt, alum, 1);
-} elseif (isset($_POST['silisellamt'])) {
-	trade(silisellamt, sili, 0);
-} elseif (isset($_POST['silibuyamt'])) {
-	trade(silibuyamt, sili, 1);
-} elseif (isset($_POST['steelsellamt'])) {
-	trade(steelsellamt, steel, 0);
-} elseif (isset($_POST['steelbuyamt'])) {
-	trade(steelbuyamt, steel, 1);
-} 
-
-echo "You have $" . $youArray["balance"];
+echo "You have $" . $playerData['balance'];
 
 ?>
 <html>
 <head>
+<style>
+
+.leftcol {
+	float: left;
+    width: 50%;
+}
+.rightcol {
+	float: left;
+    width: 50%;
+}
+.center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0;
+	text-align: center;
+}
+body {
+	font-family: sans-serif;
+}
+
+</style>
 
 <title>Economy Simulator</title>
 
@@ -87,60 +91,62 @@ echo "You have $" . $youArray["balance"];
 	</form>
 </div>
 
-<br><h3>Glass</h3>
-<form method='post'>
-	<input type="text" value="Amount" name='glassbuyamt'><br>
-	<input type="submit" value="Buy Glass">
-</form>
-<br><form method='post'>
-	<input type="text" value="Amount" name='glasssellamt'><br>
-	<input type="submit" value="Sell Glass">
-</form>
-You have <?php $youArray['glass']; ?> Glass. One Glass costs $100.<br><br>
+<div class='leftcol'>
+	<br><h3>Glass</h3>
+	<form method='post'>
+		<input type='text' name='amt' value='Amount'><br>
+		<button type='submit' value='glass' name='buy'>Buy Glass</button>
+	</form><br>
+	<form method='post'>
+		<input type='text' value='Amount' name='amt'><br>
+		<button type='submit' name='sell' value='glass'>Sell Glass</button>
+	</form>
+	You have <?php echo $playerData['glass']; ?> Glass. One Glass costs $100.<br><br>
 
-<h3>Plastic</h3>
-<form method='post'>
-	<input type="text" value="Amount" name='plasticbuyamt'><br>
-	<input type="submit" value="Buy Plastic">
-</form>
-<br><form method='post'>
-	<input type="text" value="Amount" name='plasticsellamt'><br>
-	<input type="submit" value="Sell Plastic">
-</form>
-You have <?php $youArray['plastic']; ?> Plastic. One Plastic costs $100.<br><br>
+	<br><h3>Plastic</h3>
+	<form method='post'>
+		<input type='text' name='amt' value='Amount'><br>
+		<button type='submit' value='plastic' name='buy'>Buy Plastic</button>
+	</form><br>
+	<form method='post'>
+		<input type='text' value='Amount' name='amt'><br>
+		<button type='submit' name='sell' value='plastic'>Sell Plastic</button>
+	</form>
+	You have <?php echo $playerData['plastic']; ?> Plastic. One Plastic costs $100.<br><br>
 
-<h3>Aluminum</h3>
-<form method='post'>
-	<input type="text" value="Amount" name='alumbuyamt'><br>
-	<input type="submit" value="Buy Aluminum">
-</form>
-<br><form method='post'>
-	<input type="text" value="Amount" name='alumsellamt'><br>
-	<input type="submit" value="Sell Aluminum">
-</form>
-You have <?php $youArray['alum']; ?> Aluminum. One Aluminum costs $100.<br><br>
+	<br><h3>Aluminum</h3>
+	<form method='post'>
+		<input type='text' name='amt' value='Amount'><br>
+		<button type='submit' value='alum' name='buy'>Buy Aluminum</button>
+	</form><br>
+	<form method='post'>
+		<input type='text' value='Amount' name='amt'><br>
+		<button type='submit' name='sell' value='alum'>Sell Aluminum</button>
+	</form>
+	You have <?php echo $playerData['alum']; ?> Aluminum. One Aluminum costs $100.<br><br>
 
-<h3>Silicon</h3>
-<form method='post'>
-	<input type="text" value="Amount" name='silibuyamt'><br>
-	<input type="submit" value="Buy Silicon">
-</form>
-<br><form method='post'>
-	<input type="text" value="Amount" name='silisellamt'><br>
-	<input type="submit" value="Sell Silicon">
-</form>
-You have <?php $youArray['sili']; ?> Silicon. One Silicon costs $100.<br><br>
+	<br><h3>Silicon</h3>
+	<form method='post'>
+		<input type='text' name='amt' value='Amount'><br>
+		<button type='submit' value='sili' name='buy'>Buy Silicon</button>
+	</form><br>
+	<form method='post'>
+		<input type='text' value='Amount' name='amt'><br>
+		<button type='submit' name='sell' value='sili'>Sell Silicon</button>
+	</form>
+	You have <?php echo $playerData['sili']; ?> Silicon. One Silicon costs $100.<br><br>
 
-<h3>Steel</h3>
-<form method='post'>
-	<input type="text" value="Amount" name='steelbuyamt'><br>
-	<input type="submit" value="Buy Steel">
-</form>
-<br><form method='post'>
-	<input type="text" value="Amount" name='steelsellamt'><br>
-	<input type="submit" value="Sell Steel">
-</form>
-You have <?php $youArray['steel']; ?> Steel. One Steel costs $100.<br><br>
+	<br><h3>Steel</h3>
+	<form method='post'>
+		<input type='text' name='amt' value='Amount'><br>
+		<button type='submit' value='steel' name='buy'>Buy Steel</button>
+	</form><br>
+	<form method='post'>
+		<input type='text' value='Amount' name='amt'><br>
+		<button type='submit' name='sell' value='steel'>Sell Steel</button>
+	</form>
+	You have <?php echo $playerData['steel']; ?> Steel. One Steel costs $100.<br><br>
+</div>
 
 </body>
 </html>
