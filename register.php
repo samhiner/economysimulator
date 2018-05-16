@@ -37,7 +37,7 @@
 	body {
 		font-family: sans-serif;
 	}
-	.vis {
+	.noVis {
 		display: none;
 	}
 </style>
@@ -64,9 +64,9 @@
 <div id='errorField'><?php echo $errorMessage; ?></div>
 
 <!-- Where it is displayed that passwords do not match.-->
-<p id="noPassMatch" class='vis'>Passwords do not match</p>
+<p id="noPassMatch" class='noVis'>Passwords do not match</p>
   
-<div id='thank' class='vis'>
+<div id='thank' class='noVis'>
   <p>Thank you for registering for The Economy Simulator. Click the link provided in the email sent to you within the next 24 hours to verify your registration. If your account is not verified in 24 hours, you will have to restart the registration process.</p>
 </div>
 
