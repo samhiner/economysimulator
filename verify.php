@@ -25,7 +25,6 @@ if ($playerCount != 1) {
 	header("location: home.php");
 }
 
-//
 $playerData = mysqli_fetch_array($playerTable,MYSQLI_ASSOC);
 $playerClass = $playerData['class'];
 

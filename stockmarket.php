@@ -17,14 +17,56 @@ if(isset($_POST['stock'])){
 //Fake Market
 
 if (isset($_POST['bid'])) {
+	echo 'wassup';
 	$amt = $_POST['amt'];
 	$price = $_POST['price'];
-	mysqli_query($connect,"INSERT INTO game1bids(price,amt,bidderID) VALUES('$price','$amt','$userCheckID')");
+	$item = $_POST['bid'];
+	$query =  "INSERT INTO game1prodorders(item,price,amt,id,type) VALUES('$item','$price','$amt','$userCheckID','1')";
+	mysqli_query($connect,"INSERT INTO game1prodorders(item,price,amt,id,type) VALUES('$item','$price','$amt','$userCheckID','1')");
 }
 
 if (isset($_POST['ask'])) {
-	
+	$amt = $_POST['amt'];
+	$price = $_POST['price'];
+	$item = $_POST['bid'];
+	mysqli_query($connect,"INSERT INTO game1prodorders(item,price,amt,id) VALUES('$item','$price','$amt','$userCheckID','0')");
+
 }
+
+// More Fake 
+
+//general algorithm for finding and displaying bids
+
+$bids = mysqli_query($connect,"SELECT price, amt from game1prodorders WHERE type='1' ORDER BY price DESC, timestamp ASC");
+$bidRows = mysqli_num_rows($bids);
+
+//create table with query results
+while ($row = mysqli_fetch_array($bids,MYSQLI_ASSOC)) {
+	$bidTable[] = $row;
+}
+
+//makes new table where price duplicates are merged
+$displayTable = array();
+for ($x = 0; $x < $bidRows; $x++) {
+	$displayTable[$bidTable[$x]['price']] += $bidTable[$x]['amt'];
+}
+
+//displays 5 highest bids as an html table
+for ($x = 0; $x < 5; $x++) {
+	$tempPrice = key($displayTable);
+	$tempAmt = $displayTable[key($displayTable)];
+	$table .= '
+	<tr>
+		<td>' . $tempPrice . '</td>
+		<td>' . $tempAmt . '</td>
+	</tr>
+	';
+	next($displayTable);
+}
+
+/*when fulfilling order
+$timestamp = time();
+mysqli_query($connect,"UPDATE game1prodorders SET timestamp = '$timestamp' WHERE amt = '7'");*/
 
 //
 
@@ -46,42 +88,32 @@ if (isset($_POST['ask'])) {
   </form>
 </div>
 
-<br><p>Buying and selling stocks</p>
+<p>Buying and selling stocks</p>
 
 
 <!--Fake Market-->
 
-<select id='hjk'>
-	<option value='ay'>H</option>
-	<option value='nay'>G</option>
-</select>
 
-<br><h3>Bicycle</h3>
-<form method='post'>
-	<input type='text' name='amt' id='amt' placeholder='Amount'>
-	<input type='text' name='price' placeholder='Price'><br>
-	<button type='submit' name='bid' value='bike'>Bid</button>
-	<button type='submit' name='ask' value='bike'>Ask</button>
-</form>
+			<form method='post'>
+				<input type='text' name='price' placeholder='Price'>
+				<input type='text' name='amt' id='amt' placeholder='Amount'><br>
+				<button type='submit' name='bid' value='bike'>Bid</button>
+				<button type='submit' name='ask' value='bike'>Ask</button>
+			</form>
 
-You have <?php echo $playerData['bike']; ?> Bicycles. One Bicycle costs $100.<br><br>
+<!--NEW-->
 
-<div id='x'></div>
+
+<table border='1'>
+	<tr>
+		<th>Price</th>
+		<th>Amount</th>
+	</tr>
+	<?php echo $table; ?>
+</table>
 
 <!---->
 
 
 </body>
 </html>
-<script>
-
-//checks for you to choose an item from the dropdown and switches to that item
-hjk.addEventListener('input', function () {
-	if (document.getElementById('hjk').value == 'ay') {
-		document.getElementById('x').innerHTML = 'yuh';
-	} else if (document.getElementById('hjk').value == 'nay') {
-		document.getElementById('x').innerHTML = 'nuh';
-}
-});
-
-</script>
