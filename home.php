@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 session_start();
 $connect = mysqli_connect('localhost', 'root', 'root', 'econ_data');
@@ -9,7 +10,7 @@ if (mysqli_connect_errno($connect)) {
 $userData = $_SESSION['userData'];
 $userCheckID = $userData['id'];
 if (!isset($_SESSION['userData'])){
-	header("location: login.php");
+	header('location: login');
 }
 
 //send to game if they have profile
@@ -18,7 +19,7 @@ $userCheckID = $userData['id'];
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerExist = mysqli_num_rows($playerTable);
 if ($playerExist == 1) {
-	header("location: index.php");
+	header('location: index');
 }
 
 //when submitted set up MYSQL entries with the class they chose
@@ -30,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			mysqli_query($connect,"INSERT INTO game1time(id,lastday) VALUES('$userCheckID','$time')");
 		}
 	}
-	header("location:index.php");
+	header('location:index');
 }
 
 
