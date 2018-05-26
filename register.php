@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 	$connect = mysqli_connect('localhost','root','root','econ_data');
 	if(mysqli_connect_errno($connect)) {

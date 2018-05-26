@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 include('verify.php');
 
@@ -5,13 +6,13 @@ $jsMakeString = NULL;
 
 //goes to whichever tab they clicked on
 if(isset($_POST['main'])){
-	header("location:index.php");
+	header('location:index');
 }
 if(isset($_POST['trade'])){
-	header("location:commoditiesmarket.php");
+	header('location:commoditiesmarket');
 }
 if(isset($_POST['stock'])){
-	header("location:stockmarket.php");
+	header('location:stockmarket');
 }
 
 //this variable signifies that manufacturing has started but no exchange has occured when true.
