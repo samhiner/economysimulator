@@ -21,8 +21,9 @@ if(isset($_POST['stock'])){
 
 // More Fake 
 
-
-
+function deleteZero() {
+	
+}
 
 
 //general function for displaying bids
@@ -83,11 +84,11 @@ function viewOrders($type,$item) {
 	return $table;
 }
 
-function checkOrders($item,$price,$amt,$id,$type,$timestamp) {
+function checkOrders($item,$price,$amt,$id,$type) {
 	global $connect;
 	if ($type == 0) {
 		$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
-	} elseif (type == 1) {
+	} elseif ($type == 1) {
 		$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='0' AND item='$item' ORDER BY price DESC, timestamp ASC");
 	}
 	
@@ -96,11 +97,17 @@ function checkOrders($item,$price,$amt,$id,$type,$timestamp) {
 	}
 	
 	foreach ($bidTable as $row) {
-		
+		if ($price == $row['price']) {
+			$foreignID = $row['id'];
+			$foreignTime = $row['timestamp'];
+			$newAmt = $row['amt'];
+			deleteZero($newAmt);
+			mysqli_query($connect,"UPDATE game1prodorders SET amt='$newAmt' WHERE id='foreignID' AND timestamp=$foreignTime LIMIT 1");
+		}
 	}
 }	
 	
-checkOrders('bike',5,1,9,0,89);
+checkOrders('bike',5,1,9,1,89);
 	
 if (isset($_POST['bid'])) {
 	$amt = $_POST['amt'];
