@@ -2,13 +2,11 @@
 <?php
 	session_start();
 
-	$connect=mysqli_connect('localhost', 'root', 'root', 'econ_data');
-	if(mysqli_connect_errno($connect)) {
+	$connect = mysqli_connect('localhost', 'root', NULL, 'econ_data');
+	if (mysqli_connect_errno($connect)) {
 		echo 'Failed to connect';
 	}
 
-	$username = dataCleaner($_POST['username']);
-	$password = dataCleaner($_POST['password']);
 
 	//function to clean data to prevent hacking
 	function dataCleaner($data) {
@@ -18,12 +16,17 @@
 		return $data;
 	}
 
-	$result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
-	$count = mysqli_num_rows($result);
-	$loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
+	$errorMessage = "";
 
 	//if one database entry is found set the acct info to a variable and go to home
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
+		$username = dataCleaner($_POST['username']);
+		$password = dataCleaner($_POST['password']);
+
+		$result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
+		$count = mysqli_num_rows($result);
+		$loginData = mysqli_fetch_array($result,MYSQLI_ASSOC);
+
 		if($count == 1) {
 			$_SESSION['userData'] = $loginData;
 			header('location: home');

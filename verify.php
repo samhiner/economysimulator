@@ -6,7 +6,7 @@ Session Verified!
 <?php
 
 session_start();
-$connect = mysqli_connect('localhost', 'root', 'root', 'econ_data');
+$connect = mysqli_connect('localhost', 'root', NULL, 'econ_data');
 if (mysqli_connect_errno($connect)) {
 	echo 'Failed to connect';
 }
