@@ -29,6 +29,7 @@ if ($makeBool == 1) {
 	if ($timeDiff <= 0) {
 		mysqli_query($connect,"UPDATE game1players SET $product = $product + 1 WHERE id='$userCheckID'");
 		mysqli_query($connect,"UPDATE game1time SET makeBool = '0' WHERE id = '$userCheckID'");
+		echo "<meta http-equiv='refresh' content='0'>";
 	} else {
 		//disables manufactturing button and enables timer when manufacturing isn't finished
 		$makeScript = '<script>document.getElementById("make").disabled = true;</script>';

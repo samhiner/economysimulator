@@ -15,7 +15,7 @@ if (isset($_POST['stock'])) {
 } 
 
 //processes trades
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//make it so this doesnt run on tab click
 	//do work not specific to buying/selling (minimizes repeated lines)
 	$amt = $_POST['amt'];
 	$balance = $playerData['balance'];
@@ -61,7 +61,7 @@ echo "You have $" . $playerData['balance'];
 
 .leftcol {
 	float: left;
-    width: 45%;
+	width: 45%;
 	border-style: solid;
 	border-color: black;
 	border-width: 1%;
@@ -70,7 +70,7 @@ echo "You have $" . $playerData['balance'];
 }
 .rightcol {
 	float: left;
-    width: 45%;
+	width: 45%;
 	border-style: solid;
 	border-color: black;
 	border-width: 1%;
