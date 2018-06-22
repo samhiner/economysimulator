@@ -64,7 +64,6 @@ class orderManager {
 		for ($type = 0; $type < 2; $type++) {
 			//create an array with either bids or asks
 			$displayTable = $this->getViewOrders($type);
-
 			//displays 5 highest bids as an html table
 			for ($x = 0; $x < 5; $x++) {
 				$tempPrice = key($displayTable);
@@ -79,26 +78,20 @@ class orderManager {
 					continue;
 				} else {
 					if ($type == 0) {
-						$table .= '
-						<tr class="ask">
-							<td>' . $tempPrice . '</td>
-							<td>' . $tempAmt . '</td> 
-						</tr>
-						'; 
+						$displayType = 'ask';
 					} else {
-						$table .= '
-						<tr class="bid">
-							<td>' . $tempPrice . '</td>
-							<td>' . $tempAmt . '</td>
-						</tr>
-						';	
+						$displayType = 'bid';
 					}
-					
+					$table .= '
+					<tr class="' . $displayType . '">
+						<td>' . $tempPrice . '</td>
+						<td>' . $tempAmt . '</td>
+					</tr>
+					';
 				}
 				next($displayTable);
 			}
 		}
-
 		//if there were no orders put "no orders" on the table
 		if ($table == '') {
 			$table = "
@@ -106,49 +99,47 @@ class orderManager {
 				<td colspan='2'>No Orders</td>
 			</tr>";
 		}
-
 		return $table;
 	}
 
 	//
-	// ^ done until I make it not shit
+	// ^ done until I make it not bad
 	//
 
-	function completeOrder($trader2,$amt,$type) {
+
+
+
+
+	function completeOrder($trader2,$type) {
 		global $connect;
 
-		$foreignID = $trader2['id'];
-		$foreignTime = $trader2['timestamp'];
-		$foreignAmt = $trader2['amt'];
-		$price = $trader2['price'];
-
 		//find smaller order and completely fulfill that order
-		if ($amt > $foreignAmt) {
-			$amtChange = $foreignAmt;
+		if ($this->amt > $trader2['amt']) {
+			$amtChange = $trader2['amt'];
 		} else {
-			$amtChange = $amt;
+			$amtChange = $this->amt;
 		}
 
-		if ($type == 1) {
-			$newAmt = $amt + $amtChange;
-			$newForeignAmt = $foreignAmt - $amtChange;
+		//amtDiff always given to current user and taken from old (balanceDiff is opposite) so if current user did an ask then the signs are switched 
+		if ($type == 0) {
+			$amtDiff = $amtChange * -1;
 		} else {
-			$newAmt = $amt - $amtChange;
-			$newForeignAmt = $foreignAmt + $amtChange;
+			$amtDiff = $amtChange;
 		}
 
-		$theyOwe = $price * $amtChange;
+		$balanceDiff = $trader2['price'] * $amtDiff;
 
-		//find both orders and remove the transacted amount
-		mysqli_query($connect,"UPDATE game1prodorders SET amt = amt - $amtChange WHERE id='" . $this->id . "' AND timestamp='$foreignTime' LIMIT 1");
-		mysqli_query($connect,"UPDATE game1prodorders SET amt = amt - $amtChange WHERE id='$foreignID' AND timestamp='$foreignTime' LIMIT 1");
-
-		//remove the noew zero amt order from the system
+		//edit old order to be up to date with transaction and delete it if it fulfilled the whole order
+		$query = "UPDATE game1prodorders SET amt = amt - $amtChange WHERE id = '" . $trader2['id'] . "' AND timestamp = '" . $trader2['timestamp'] . "' LIMIT 1";
+		mysqli_query($connect,$query);
 		mysqli_query($connect,"DELETE FROM game1prodorders WHERE amt = '0'");
 
-		//change balance and amt of product based on transaction
-		mysqli_query($connect,"UPDATE game1players SET amt = amt + $newAmt,price = price + $theyOwe WHERE id='$foreignID' AND timestamp='$foreignTime' LIMIT 1");
-		mysqli_query($connect,"UPDATE game1players SET amt = amt + $newForeignAmt, price = price - $theyOwe WHERE id='$foreignID' AND timestamp='$foreignTime' LIMIT 1");
+		//update local representation of your order (added to db if anything is left over after merging with other orders) to match the transaction
+		$this->amt -= $amtChange;
+
+		//change balance and amt of product for the original orderer based on transaction
+		mysqli_query($connect,"UPDATE game1players SET $this->item = $this->item + $amtDiff, balance = balance - $balanceDiff WHERE id = '" . $this->id . "'");
+		mysqli_query($connect,"UPDATE game1players SET $this->item = $this->item - $amtDiff, balance = balance + $balanceDiff WHERE id = '" . $trader2['id'] . "'");
 	}
 
 	//variables for your order which are set externally when you place the order
@@ -157,42 +148,36 @@ class orderManager {
 	public $timestamp;
 	public $id;
 
-	function checkOrders($type) {
-		global $connect;
-		if ($type == 0) {
-			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='1' AND item='" . $this->item . "' ORDER BY price DESC, timestamp ASC");
-		} else {
-			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='0' AND item='" . $this->item . "' ORDER BY price ASC, timestamp ASC");
-		}
-		
-		while ($row = mysqli_fetch_array($trades,MYSQLI_ASSOC)) {
-			//sees if orders can be traded '<= for bid', '>= for ask'
-			if ((($type == 1) and ($this->price <= $row['price'])) or (($type == 0) and ($this->price >= $row['price']))) {
-				$this->completeOrder($row,$this->amt,$this->price,$type);
-			}
-		}
-		/*
-		foreach ($bidTable as $row) {
-			//sees if orders can be traded '<= for bid', '>= for ask'
-			if ((($type == 1) and ($this->price <= $row['price'])) or (($type == 0) and ($this->price >= $row['price']))) {
-				$this->completeOrder($row,$this->amt,$this->price,$type);
-			}
-		}*/
-	}
-
 	function placeOrder($type) {
 		global $connect;
-		global $userCheckID; //ik its terrible i am purging all globals for attributes soon
+		if ($type == 0) {
+			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='1' AND item='$this->item' ORDER BY price DESC, timestamp ASC");
+		} else {
+			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='0' AND item='$this->item' ORDER BY price ASC, timestamp ASC");
+		}
+		
+		//iterate through opposite kind of orders and merge orders which fall in constraints set by user (for bid must be less than or equal to price and ask is opposite)
+		while ($row = mysqli_fetch_array($trades,MYSQLI_ASSOC)) {
+			if ((($type == 1) and ($this->price <= $row['price'])) or (($type == 0) and ($this->price >= $row['price']))) {
+				$this->completeOrder($row,$type);
+			}
+		}
 
-		$amt = $this->amt;
-		$price = $this->price;
-		$timestamp = $this->timestamp; //WHOA WHOA WHOA SOMEWHERE UP THERE IT JUST USES 'PRICE' WHAT IF THEY SAID $5 AND THE LOWEST ASK IS $3 DUMB FUCK
-		$item = $this->item;
-		mysqli_query($connect,"INSERT INTO game1prodorders(item,price,amt,id,type,timestamp) VALUES('$item','$price','$amt','$userCheckID','$type','$timestamp')");
-		$this->checkOrders($type);
+		//if the order was not able to be competely fulfilled add it to the database
+		if ($this->amt > 0) {
+			mysqli_query($connect,"INSERT INTO game1prodorders(item,price,amt,id,type,timestamp) VALUES('$this->item','$this->price','$this->amt','$this->id','$type','$this->timestamp')");
+		}
+
 	}
-
 }
+
+
+
+
+
+
+
+
 
 $myOrder = new orderManager('bike');
 echo $myOrder->item;
@@ -206,7 +191,7 @@ if (isset($_POST['bid'])) {
 		$myOrder->id = $userCheckID;
 		$myOrder->placeOrder('1');
 	} else {
-		echo 'need more money asshole';
+		echo 'need more money';
 	}
 }
 
@@ -218,11 +203,9 @@ if (isset($_POST['ask'])) {
 		$myOrder->id = $userCheckID;
 		$myOrder->placeOrder('0');
 	} else {
-		echo 'need more shit asshole';
+		echo 'need more items';
 	}
 }
-
-echo $playerData['bike'];
 
 ?>
 <html>
@@ -275,10 +258,14 @@ echo $playerData['bike'];
 		<th>Amount</th>
 	</tr>
 	<?php echo $myOrder->displayOrders(); ?>
-</table>
+</table><br>
+
+<!-- Stats -->
+
+<?php echo $playerData['bike']; ?> bikes<br>
+<?php echo $playerData['balance']; ?> moneys
 
 <!---->
-
 
 </body>
 </html>
