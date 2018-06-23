@@ -7,7 +7,6 @@
 		echo 'Failed to connect';
 	}
 
-
 	//function to clean data to prevent hacking
 	function dataCleaner($data) {
 		$data = trim($data);
@@ -21,7 +20,7 @@
 	//if one database entry is found set the acct info to a variable and go to home
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {	
 		$username = dataCleaner($_POST['username']);
-		$password = dataCleaner($_POST['password']);
+		$password = hash('ripemd160',dataCleaner($_POST['password']));
 
 		$result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$username' and password = '$password'");
 		$count = mysqli_num_rows($result);
