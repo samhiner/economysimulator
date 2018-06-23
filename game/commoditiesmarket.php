@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <?php
 
-include('verify.php');
+include('../logic/verify.php');
 
 //goes to whichever tab they clicked on
 if (isset($_POST['main'])) {
@@ -15,7 +15,7 @@ if (isset($_POST['stock'])) {
 } 
 
 //processes trades
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//make it so this doesnt run on tab click
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//ISSUE make it so this doesnt run on tab click
 	//do work not specific to buying/selling (minimizes repeated lines)
 	$amt = $_POST['amt'];
 	$balance = $playerData['balance'];
