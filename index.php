@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 include('verify.php');
 
@@ -5,13 +6,13 @@ $jsMakeString = NULL;
 
 //goes to whichever tab they clicked on
 if(isset($_POST['main'])){
-	header("location:index.php");
+	header('location:index');
 }
 if(isset($_POST['trade'])){
-	header("location:commoditiesmarket.php");
+	header('location:commoditiesmarket');
 }
 if(isset($_POST['stock'])){
-	header("location:stockmarket.php");
+	header('location:stockmarket');
 }
 
 //this variable signifies that manufacturing has started but no exchange has occured when true.
@@ -28,6 +29,7 @@ if ($makeBool == 1) {
 	if ($timeDiff <= 0) {
 		mysqli_query($connect,"UPDATE game1players SET $product = $product + 1 WHERE id='$userCheckID'");
 		mysqli_query($connect,"UPDATE game1time SET makeBool = '0' WHERE id = '$userCheckID'");
+		echo "<meta http-equiv='refresh' content='0'>";
 	} else {
 		//disables manufactturing button and enables timer when manufacturing isn't finished
 		$makeScript = '<script>document.getElementById("make").disabled = true;</script>';

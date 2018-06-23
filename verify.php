@@ -6,7 +6,7 @@ Session Verified!
 <?php
 
 session_start();
-$connect = mysqli_connect('localhost', 'root', 'root', 'econ_data');
+$connect = mysqli_connect('localhost', 'root', NULL, 'econ_data');
 if (mysqli_connect_errno($connect)) {
 	echo 'Failed to connect';
 }
@@ -15,17 +15,16 @@ if (mysqli_connect_errno($connect)) {
 $userData = $_SESSION['userData'];
 $userCheckID = $userData['id'];
 if (!isset($_SESSION['userData'])){
-	header("location: login.php");
+	header('location: login');
 }
 
 //ensure acct is linked to profile
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerCount = mysqli_num_rows($playerTable);
 if ($playerCount != 1) {
-	header("location: home.php");
+	header("location: home");
 }
 
-//
 $playerData = mysqli_fetch_array($playerTable,MYSQLI_ASSOC);
 $playerClass = $playerData['class'];
 
