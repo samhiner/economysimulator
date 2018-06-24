@@ -8,29 +8,29 @@ if (mysqli_connect_errno($connect)) {
 
 //ensure they have logged in (didn't just use verify.php bc that has profile stuff that is created here for new accts)
 if (!isset($_SESSION['userData'])){
-	header('location: login');
-} else {
-	$userData = $_SESSION['userData'];
-	$userCheckID = $userData['id'];
+	header('location: http://localhost/economysimulator/acct/login');
 }
+
+$userData = $_SESSION['userData'];
+$userCheckID = $userData['id'];
 
 //send to game if they have profile
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerExist = mysqli_num_rows($playerTable);
 if ($playerExist == 1) {
-	header('location: ../game/index');
+	header('location: http://localhost/economysimulator/game/index');
 }
 
 //when submitted set up MYSQL entries with the class they chose
 if (isset($_POST['a'])) {
-	$time = date('Y-m-d h:i:sa');
+	$time = date('Y-m-d H:i:s');
 	for ($x = 0; $x <= 9; $x++) {
 		if ($_POST['a'] == $x) {
 			mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','$x','2000')");
 			mysqli_query($connect,"INSERT INTO game1time(id,lastday) VALUES('$userCheckID','$time')");
 		}
 	}
-	header('location: ../game/index');
+	header('location: http://localhost/economysimulator/game/index');
 }
 
 ?>
