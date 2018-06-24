@@ -7,38 +7,37 @@ $jsMakeString = NULL;
 
 //goes to whichever tab they clicked on
 if(isset($_POST['main'])){
-	header('location:index');
+	header('location: http://localhost/economysimulator/game/index');
 }
 if(isset($_POST['trade'])){
-	header('location:commoditiesmarket');
+	header('location: http://localhost/economysimulator/game/commoditiesmarket');
 }
 if(isset($_POST['stock'])){
-	header('location:stockmarket');
+	header('location: http://localhost/economysimulator/game/stockmarket');
 }
 
-//this variable signifies that manufacturing has started but no exchange has occured when true.
-$makeBool = $timeArray['makeBool'];
+//find manufacturing date
+$makeString = $timeArray['makeDate'];
 
-//find current date and manufacturing date
-$now = strtotime("now");
-$makeString = $timeArray['date'];
-$makeWhen = (strtotime($makeString));
-$timeDiff = $makeWhen - $now;
+//looks into manufacturing if an order was queued (isset prevents automatically making products if a connection to database wasn't made)
+if ((isset($makeString)) && ($makeString != '2000-01-01 00:00:00')) {
+	$now = strtotime("now");
+	$makeWhen = strtotime($makeString);
+	$timeDiff = $makeWhen - $now;
 
-//manufactures when there is a queued order (makeBool) and the time is up
-if ($makeBool == 1) {
+	//means "if now is greater than makeWhen". if so the manufacturing date has passed and the item can be made
 	if ($timeDiff <= 0) {
 		mysqli_query($connect,"UPDATE game1players SET $product = $product + 1 WHERE id='$userCheckID'");
-		mysqli_query($connect,"UPDATE game1time SET makeBool = '0' WHERE id = '$userCheckID'");
+		mysqli_query($connect,"UPDATE game1time SET makeDate = '2000-01-01 00:00:00' WHERE id = '$userCheckID'");
 		echo "<meta http-equiv='refresh' content='0'>";
 	} else {
 		//disables manufactturing button and enables timer when manufacturing isn't finished
 		$makeScript = '<script>document.getElementById("make").disabled = true;</script>';
-		$timerScript = '<script>document.getElementById("timer").disabled = false;</script>';
+		$timerScript = '<script>document.getElementById("makeTimer").disabled = false;</script>';
 	}
 } else {
 	$timerScript = '<script>document.getElementById("make").disabled = false;</script>';
-	$makeScript = '<script>document.getElementById("timer").disabled = true;</script>';
+	$makeScript = '<script>document.getElementById("makeTimer").disabled = true;</script>';
 }
 
 //start manufacturing process when button clicked
@@ -46,21 +45,19 @@ if (isset($_POST['make'])) {
 	//make sure they have required materials
 	if(($numMaterial1 > 0) && ($numMaterial2 > 0) && ($numMaterial3 > 0)) {
 		//make sure they have daily supplies (prevents inspect element exploit on disabled button)
-		if (($numSupply1 <= 0) && ($numSupply12 <= 1)) {
+		if (($numSupply1 <= 0) && ($numSupply2 <= 0)) {
 			$showSupply1 = $itemList[$playerClass][10];
 			$showSupply2 = $itemList[$playerClass][11];
 			$message = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
 			echo "<script>alert('$message');</script>";
 		} else {
-			$addedDate = date("Y-m-d H:i:sa",strtotime('2 hour'));
-			$finishDate = substr($addedDate,0,-2);
+			$addedDate = date("Y-m-d H:i:s",strtotime('2 hour'));
 			mysqli_query($connect,"UPDATE game1players SET $material1 = $material1 - 1, $material2 = $material2 - 1, $material3 = $material3 - 1 WHERE id='$userCheckID'");
-			mysqli_query($connect,"UPDATE game1time SET date='$finishDate', makeBool='1' WHERE id='$userCheckID'");
+			mysqli_query($connect,"UPDATE game1time SET makeDate='$addedDate' WHERE id='$userCheckID'");
 			echo "<meta http-equiv='refresh' content='0'>";
 		}
 	} else {
-		$message = "Not enough items";
-		echo "<script>alert('$message');</script>";
+		echo "<script>alert('Not enough items');</script>";
 	}
 }
 
@@ -76,6 +73,7 @@ if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 	$showSupply2 = $itemList[$playerClass][11];
 	$errorMessage = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
 }
+
 
 ?>
 <html>
@@ -100,6 +98,7 @@ echo "You have " . $playerData[$material1] . " " . $itemList[$playerClass][0] . 
 echo "You have " . $playerData[$material2] . " " . $itemList[$playerClass][1] . "<br>";
 echo "You have " . $playerData[$material3] . " " . $itemList[$playerClass][2] . "<br>";
 echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];
+
 ?>
 
 <br><p>*Insert more data.*</p><br><br><br>
@@ -112,7 +111,7 @@ Materials: 1 <?php echo $itemList[$playerClass][0]; ?>, 1 <?php echo $itemList[$
 	<input type='submit' name='make' value='Manufacture' id='make'>
 </form>
 
-<p id="timer"></p>
+<p id="makeTimer">&infin; Hours, &infin; Minutes, &infin; Seconds</p>
 
 <?php
 if (isset($timerScript)) {
@@ -129,37 +128,76 @@ if (isset($errorMessage)) {
 ?>
 
 <script>
-//Finds time until item is made.
-if (document.getElementById('timer').disabled == false) {
-	var makeWhen = "<?php echo $makeString; ?>";
-	var makeDate = new Date(makeWhen).getTime();
 
-	var x = setInterval (function() {
-		var now = new Date()
-		var utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-		var timeLeft = makeDate - utc;
-		
-		var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-		var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-		var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+//find difference between end date and now and break down remaining into hrs mins secs
+function countDownClock(finWhen,clock) {
+	var finDate = new Date(finWhen).getTime();
+	var now = new Date();
+	var utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+	var timeLeft = finDate - utc;
 	
-		document.getElementById("timer").innerHTML = hours + " Hours, " + minutes + " Minutes, " + seconds + " Seconds";
-		
-		//refresh page when time is up to ensure PHP kicks in
-		if (timeLeft <= 0) {
-			location.reload();
-		}
-	}, 1000);
+	var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+	var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+	var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
+	document.getElementById(clock).innerHTML = hours + " Hours, " + minutes + " Minutes, " + seconds + " Seconds";
+	
+	//refresh page when time is up to ensure PHP kicks in
+	if (timeLeft <= 0) {
+		location.reload();
+	}
 }
+
+//Finds time until item is made.
+if (document.getElementById('makeTimer').disabled == false) {
+	//turn the manufacturing time into a js time and run countdown function
+	var makeDate = "<?php echo $makeString; ?>";
+
+	//call it once the first time to prevent 1 sec delay from setinterval
+	countDownClock(makeDate,'makeTimer')
+	var makeTimerScript = setInterval( function() {countDownClock(makeDate,'makeTimer')}, 1000);
+}
+
+function startTimer(decayDate,detailsBox,clock) {
+	//start with false bc this check runs before clicking the box changes it to true
+	if (document.getElementById(detailsBox).open == false) {
+		decayDate *= 1000;
+
+		countDownClock(decayDate,clock)
+		var decayTimerScript = setInterval( function() {countDownClock(decayDate,clock)}, 1000);
+	}
+}
+
 </script>
 
 <h3>Your Supplies:</h3>
 You have:<br>
 
-<?php 
-echo $playerData[$itemList[$playerClass][8]] . " " . $itemList[$playerClass][10] . "s<br>";
-echo $playerData[$itemList[$playerClass][9]] . " " . $itemList[$playerClass][11] . "s"; ?>
+
+<details id='prod1' onclick='startTimer(<?php 
+if (isset($globalDecay->newDecayDate[1])) {
+	echo $globalDecay->newDecayDate[1];
+} else {
+	echo NULL;
+}
+?>,"prod1","prod1CountDown")'>
+	<summary><?php echo $numSupply1 . " " . $itemList[$playerClass][10] . "<br>"; ?></summary>
+	<p>One product will be used up in </p>
+	<p id='prod1CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
+</details>
+
+<details id='prod2' onclick='startTimer(<?php 
+if (isset($globalDecay->newDecayDate[2])) {
+	echo $globalDecay->newDecayDate[2];
+} else {
+	echo NULL;
+}
+?>,"prod2","prod2CountDown")'>
+	<summary><?php echo $numSupply2 . " " . $itemList[$playerClass][11]; ?></summary>
+	<p>One product will be used up in </p>
+	<p id='prod2CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
+</details>
+
 
 <br><br>Go to the Commodities Market to buy more of these items
 
