@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <?php
 
-include('verify.php');
+include('../logic/verify.php');
 
 //goes to whichever tab they clicked on
 if(isset($_POST['main'])){
-	header('location:index');
+	header('location: http://localhost/economysimulator/game/index');
 }
 if(isset($_POST['trade'])){
-	header('location:commoditiesmarket');
+	header('location: http://localhost/economysimulator/game/commoditiesmarket');
 }
 if(isset($_POST['stock'])){
-	header('location:stockmarket');
+	header('location: http://localhost/economysimulator/game/stockmarket');
 } 
 
 

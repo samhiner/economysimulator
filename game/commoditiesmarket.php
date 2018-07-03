@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <?php
 
-include('verify.php');
+include('../logic/verify.php');
 
 //goes to whichever tab they clicked on
 if (isset($_POST['main'])) {
-	header('location:index');
+	header('location: http://localhost/economysimulator/game/index');
 }
 if(isset($_POST['trade'])){
-	header('location:commoditiesmarket');
+	header('location: http://localhost/economysimulator/game/commoditiesmarket');
 }
 if (isset($_POST['stock'])) {
-	header('location:stockmarket');
+	header('location: http://localhost/economysimulator/game/stockmarket');
 } 
 
 //processes trades
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//make it so this doesnt run on tab click
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//ISSUE make it so this doesnt run on tab click
 	//do work not specific to buying/selling (minimizes repeated lines)
 	$amt = $_POST['amt'];
 	$balance = $playerData['balance'];
@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//make it so this doesnt run on tab 
 		//ensures you have funds for trade
 		if($newBalance >= 0) {
 			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+			//include('productdecay.php');
 			echo "<meta http-equiv='refresh' content='0'>";
 		} else {
 			echo "<script>alert('You do not have enough items to make this trade');</script>";
@@ -45,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//make it so this doesnt run on tab 
 		//ensures you have enough items for trade
 		if($newYouItems >= 0) {
 			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+			//include('productdecay.php'); ISSUE MAY TRIGGER BEFORE PLAYERDATA IS UPDATED CHEKC IT OUT
 			echo "<meta http-equiv='refresh' content='0'>";
 		} else {
 			echo "<script>alert('You do not have enough items to make this trade');</script>";
@@ -53,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//make it so this doesnt run on tab 
 }
 
 echo "You have $" . $playerData['balance'];
+echo $playerData[$supply1];
 
 ?>
 <html>
