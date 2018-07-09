@@ -1,11 +1,10 @@
-# The Economy Simulator
-To run the code locally:
-* Download and install MAMP from https://www.mamp.info/en/downloads/ (if you are using Linux, LAMP should suffice as an alternative)
-* Place all of the files into the htdocs folder in MAMP
-* Start the MAMP server and type "localhost/MAMP" in your browser.
-* Once you have reached the website, click on the link titled phpMyAdmin.
-* Click import on the taskbar at the top and import the mysql database [insert MYSQL database here].
-* Go to "localhost" in your browser.
-* Profit. 
+## The Economy Simulator
+This is a multiplayer game where each player owns a company and is attempting to buy out all of the other companies to win. They do this by manufacturing products and trading in commodities and stock markets in order to make the money they need to execute a hostile takeover on another company. Exposes players to basic economic concepts such as how supply and demand affect security pricing.
 
-Note: This is only for running the game on your machine. If you want to run it on a server, you could use freewha.com. You would just upload the files and use their version of phpMyAdmin to upload the database. Also, you can get a free domain to use for your freewha site with freenom.com.
+## Run the Code
+
+### Non-Technical Guide:
+If you want to use this game for your club, class, or you just want to play it with your friends for fun, email me at [WILL ADD EMAIL WHEN PROJECT IS COMPLETE] and I will either host a game for you on my website or help you host your own game.
+
+### Technical Guide:
+The code found here is configured for use with [WAMPServer](https://sourceforge.net/projects/wampserver/). To run the code with WAMPServer, download it and put the code in the www folder, then import the "site.sql" file in phpmyadmin. If you wish to run the code using something other than WAMPServer, you will likely have to reconfigure the mysqli_connect functions in "login.php", "register.php", "home.php".
