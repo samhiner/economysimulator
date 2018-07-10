@@ -31,13 +31,13 @@ if ((isset($makeString)) && ($makeString != '2000-01-01 00:00:00')) {
 		mysqli_query($connect,"UPDATE game1time SET makeDate = '2000-01-01 00:00:00' WHERE id = '$userCheckID'");
 		echo "<meta http-equiv='refresh' content='0'>";
 	} else {
-		//disables manufactturing button and enables timer when manufacturing isn't finished
+		//disables manufacturing button and enables timer when manufacturing isn't finished
 		$makeScript = '<script>document.getElementById("make").disabled = true;</script>';
-		$timerScript = '<script>document.getElementById("makeTimer").disabled = false;</script>';
+		$timerScript = '<script>document.getElementById("makeTimer").style.display = "block";</script>';
 	}
 } else {
-	$timerScript = '<script>document.getElementById("make").disabled = false;</script>';
-	$makeScript = '<script>document.getElementById("makeTimer").disabled = true;</script>';
+	$makeScript = '<script>document.getElementById("make").disabled = false;</script>';
+	$timerScript = '<script>document.getElementById("makeTimer").style.display = "none";</script>';
 }
 
 //start manufacturing process when button clicked
@@ -48,8 +48,7 @@ if (isset($_POST['make'])) {
 		if (($numSupply1 <= 0) && ($numSupply2 <= 0)) {
 			$showSupply1 = $itemList[$playerClass][10];
 			$showSupply2 = $itemList[$playerClass][11];
-			$message = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
-			echo "<script>alert('$message');</script>";
+			echo "<script>alert('Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2');</script>";
 		} else {
 			$addedDate = date("Y-m-d H:i:s",strtotime('2 hour'));
 			mysqli_query($connect,"UPDATE game1players SET $material1 = $material1 - 1, $material2 = $material2 - 1, $material3 = $material3 - 1 WHERE id='$userCheckID'");
@@ -149,19 +148,19 @@ function countDownClock(finWhen,clock) {
 }
 
 //Finds time until item is made.
-if (document.getElementById('makeTimer').disabled == false) {
+if (document.getElementById('makeTimer').style.display == 'block') {
 	//turn the manufacturing time into a js time and run countdown function
 	var makeDate = "<?php echo $makeString; ?>";
-
 	//call it once the first time to prevent 1 sec delay from setinterval
 	countDownClock(makeDate,'makeTimer')
 	var makeTimerScript = setInterval( function() {countDownClock(makeDate,'makeTimer')}, 1000);
 }
 
 function startTimer(decayDate,detailsBox,clock) {
-	//start with false bc this check runs before clicking the box changes it to true
+	//check if false bc this check runs before clicking the box changes "open" to true
 	if (document.getElementById(detailsBox).open == false) {
 		decayDate *= 1000;
+		decayDate += 14400000;
 
 		countDownClock(decayDate,clock)
 		var decayTimerScript = setInterval( function() {countDownClock(decayDate,clock)}, 1000);

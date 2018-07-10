@@ -222,7 +222,31 @@ body {
 		You have <?php echo $playerData['bike']; ?> Bicycles. One Bicycle costs $100.<br><br>
 	</div>
 
-<!---->
+<!--
+
+	<div id='<?php //echo $focusItem; ?>' class=''>
+		<h3><?php //echo $focusShowItem; ?></h3>
+		<div style='float:left;'>
+			<h4>Limit Order</h4>
+			<form method='post'>
+				<input type='text' name='amt' id='amt' placeholder='Amount'>
+				<input type='text' name='price' placeholder='Price'><br>
+				<button type='submit' name='bid' value='bike'>Bid</button>
+				<button type='submit' name='ask' value='bike'>Ask</button>
+			</form><br>
+			
+			<h4>Market Order</h4>
+			<form method='post'>
+				<input type='text' name='amt' id='amt' placeholder='Amount'><br>
+				<button type='submit' name='buyMarket' value='bike'>Buy</button>
+				<button type='submit' name='sellMarket' value='bike'>Sell</button>
+			</form>
+		</div>
+		
+		You have <?php //echo $playerData['bike']; ?> Bicycles. One Bicycle costs $100.<br><br>
+	</div>
+
+-->
 	
 	<div id='tv' class='noVis'>
 		<h3>TV</h3>

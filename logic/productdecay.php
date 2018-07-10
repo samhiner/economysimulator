@@ -19,7 +19,6 @@ class productDecay {
 		if ($playerData[$supply] > 0) {
 			//if they just got a product from having none (would be from function running on commodmkt trade) update the db to be accurate and set prod to decay in a day
 			if ($timeArray['haveSupply' . $supplyID] == '0') {
-				echo 'd';
 				$decayWhen = date('Y-m-d H:i:s', time() + (60*60*24));
 				mysqli_query($connect,"UPDATE game1time SET decayDate$supplyID='$decayWhen', haveSupply$supplyID='1' WHERE id='$userCheckID'");
 			//if database is accurate and have product, decayDate has to have already been registered
