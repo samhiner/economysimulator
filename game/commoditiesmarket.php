@@ -13,18 +13,25 @@ function displayItem($code) {
 		document.getElementById('fixedTrade').style.display = 'block';</script>";
 	}
 
-	return array(substr($code, 1), $showTradeScript);
+	return array($code, $showTradeScript);
 }
 
-//default your tab to glass
-$focusedItem = displayItem('Mglass'); //ISSUE: fix this so it defaults to tab you were last on. could do this using post value of buy/sell/bid/ask
-
-//change your tab when you choose the item you want
+//look to see if you changed tab or recently submitted an order to change focus to. if none then default to glass
 if (isset($_POST['itemLookup'])) {
 	$focusedItem = displayItem($_POST['itemLookup']);
+} elseif (isset($_POST['bid'])) {
+	$focusedItem = displayItem($_POST['bid']);
+} elseif (isset($_POST['ask'])) {
+	$focusedItem = displayItem($_POST['ask']);
+} elseif (isset($_POST['buy'])) {
+	$focusedItem = displayItem($_POST['buy']);
+} elseif (isset($_POST['sell'])) {
+	$focusedItem = displayItem($_POST['sell']);
+} else {
+	$focusedItem = displayItem('Mglass');
 }
 
-$myOrder = new orderManager($focusedItem);
+$myOrder = new orderManager(substr($focusedItem[0], 1));
 
 //processes trades
 if (isset($_POST['amt'])) { //ISSUE test this
@@ -89,47 +96,21 @@ if (isset($_POST['amt'])) { //ISSUE test this
 
 echo "You have $" . $playerData['balance'];
 echo $playerData[$supply1];
-
 ?>
 <html>
 <head>
 <style>
-
-.leftcol {
+.leftCol {
 	float: left;
-	width: 45%;
-	border-style: solid;
-	border-color: black;
-	border-width: 1%;
-	border-right-color: white;
-	padding: 2%;
 }
-.rightcol {
+.rightCol {
+	margin-left: 5%;
 	float: left;
-	width: 45%;
-	border-style: solid;
-	border-color: black;
-	border-width: 1%;
-	padding: 2%;
-}
-.center {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-	padding: 0;
-	text-align: center;
-}
-.noVis {
-	display: none;
-}
-.x {
-	border: solid;
-	border-color: black;
-	padding-bottom: 300px;
 }
 </style>
 
 <title>Economy Simulator</title>
+<link rel='stylesheet' type='text/css' href='../styling/marketpages.css'>
 
 </head>
 <body>
@@ -158,49 +139,48 @@ echo $playerData[$supply1];
 		<input type='submit'>
 	</form>
 	<br><br><br>
-
-	<div id='allItems' class='x'>
-		<div id='marketTrade'>
-			<div id='<?php echo $focusedItem[0]; ?>'>
-				<h3><span name='itemShowName'></span></h3>
-				<div style='float:left;'>
-					<h4>Limit Order</h4>
-					<form method='post'>
-						<input type='text' name='amt' placeholder='Amount'>
-						<input type='text' name='price' placeholder='Price'><br>
-						<button type='submit' name='bid' value='<?php echo $focusedItem[0]; ?>'>Bid</button>
-						<button type='submit' name='ask' value='<?php echo $focusedItem[0]; ?>'>Ask</button>
-					</form><br>
-					
-					<h4>Market Order (Out of Order)</h4>
-					<form method='post'>
-						<input type='text' name='amt' placeholder='Amount'><br>
-						<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
-						<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
-					</form>
-				</div>
+	<hr>
+	<div id='marketTrade' class='tradeHolder'>
+		<div id='<?php echo substr($focusedItem[0], 1); ?>'>
+			<h3><span name='itemShowName'></span></h3>
+			<div class='leftCol' ='float:left;'>
+				<h4 style='margin-top: 0%;'>Limit Order</h4>
+				<form method='post'>
+					<input type='text' name='amt' placeholder='Amount'>
+					<input type='text' name='price' placeholder='Price'><br>
+					<button type='submit' name='bid' value='<?php echo $focusedItem[0]; ?>'>Bid</button>
+					<button type='submit' name='ask' value='<?php echo $focusedItem[0]; ?>'>Ask</button>
+				</form><br>
 				
-				<br><table border='1'>
+				<h4>Market Order (Out of Order)</h4>
+				<form method='post'>
+					<input type='text' name='amt' placeholder='Amount'><br>
+					<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+					<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
+				</form>
+			</div>
+			<div class='rightCol'>
+				<table border='1'>
 					<tr>
 						<th>Price</th>
 						<th>Amount</th>
 					</tr>
 					<?php echo $myOrder->displayOrders(); ?>
 				</table><br>
+				You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
+			</div>
 
-				You have <?php echo $playerData[$focusedItem[0]]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
-			</div>
 		</div>
-		<div id='fixedTrade'>
-			<div id='<?php echo $focusedItem[0]; ?>'>
-				<h3><span name='itemShowName'></span></h3>
-				<form method='post'>
-					<input type='text' name='amt' value='Amount'><br>
-					<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
-					<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
-				</form>
-				You have <?php echo $playerData[$focusedItem[0]]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
-			</div>
+	</div>
+	<div id='fixedTrade' class='tradeHolder'>
+		<div id='<?php echo substr($focusedItem[0], 1); ?>'>
+			<h3><span name='itemShowName'></span></h3>
+			<form method='post'>
+				<input type='text' name='amt' placeholder='Amount'><br>
+				<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+				<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
+			</form>
+			You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
 		</div>
 	</div>
 </div>
@@ -209,7 +189,7 @@ echo $playerData[$supply1];
 
 <script>
 
-var itemName = document.getElementById('<?php echo $focusedItem[0]; ?>Choice').innerText
+var itemName = document.getElementById('<?php echo substr($focusedItem[0], 1); ?>Choice').innerText
 
 var showFields = document.getElementsByName('itemShowName');
 for (x = 0; x < showFields.length; x++) {
