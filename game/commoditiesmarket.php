@@ -2,6 +2,7 @@
 <?php
 
 include('../logic/verify.php');
+include('../logic/marketorders.php');
 
 function displayItem($code) {
 	if ($code[0] == 'P') {
@@ -15,11 +16,15 @@ function displayItem($code) {
 	return array(substr($code, 1), $showTradeScript);
 }
 
-$focusItem = displayItem('Mglass');
+//default your tab to glass
+$focusedItem = displayItem('Mglass'); //ISSUE: fix this so it defaults to tab you were last on. could do this using post value of buy/sell/bid/ask
 
+//change your tab when you choose the item you want
 if (isset($_POST['itemLookup'])) {
-	$focusItem = displayItem($_POST['itemLookup']);
+	$focusedItem = displayItem($_POST['itemLookup']);
 }
+
+$myOrder = new orderManager($focusedItem);
 
 //processes trades
 if (isset($_POST['amt'])) { //ISSUE test this
@@ -28,35 +33,56 @@ if (isset($_POST['amt'])) { //ISSUE test this
 	$balance = $playerData['balance'];
 	$price = 100 * $amt;
 	
-	if(isset($_POST['buy'])) {
-		$itemName = $_POST['buy'];
-		$youItems = $playerData[$itemName];
-	
-		$newYouItems = $youItems + $amt;
-		$newBalance = $balance - $price;
+	if ((isset($_POST['buy'])) or (isset($_POST['sell']))) {
+		if (isset($_POST['buy'])) {
+			$itemName = $_POST['buy'];
+			$youItems = $playerData[$itemName];
+		
+			$newYouItems = $youItems + $amt;
+			$newBalance = $balance - $price;
 
-		//ensures you have funds for trade
-		if($newBalance >= 0) {
-			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
-			//include('productdecay.php');
-			echo "<meta http-equiv='refresh' content='0'>";
-		} else {
-			echo "<script>alert('You do not have enough items to make this trade');</script>";
+			//ensures you have funds for trade
+			if($newBalance >= 0) {
+				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+				//include('productdecay.php');
+				//echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo "<script>alert('You do not have enough items to make this trade');</script>";
+			}
+		} elseif (isset($_POST['sell'])) {
+			$itemName = $_POST['sell'];
+			$youItems = $playerData[$itemName];
+			
+			$newYouItems = $youItems - $amt;
+			$newBalance = $balance + $price;
+			
+			//ensures you have enough items for trade
+			if ($newYouItems >= 0) {
+				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+				//include('productdecay.php'); ISSUE MAY TRIGGER BEFORE PLAYERDATA IS UPDATED CHEKC IT OUT
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo "<script>alert('You do not have enough items to make this trade');</script>";
+			}
 		}
-	} elseif (isset($_POST['sell'])) {
-		$itemName = $_POST['sell'];
-		$youItems = $playerData[$itemName];
-		
-		$newYouItems = $youItems - $amt;
-		$newBalance = $balance + $price;
-		
-		//ensures you have enough items for trade
-		if($newYouItems >= 0) {
-			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
-			//include('productdecay.php'); ISSUE MAY TRIGGER BEFORE PLAYERDATA IS UPDATED CHEKC IT OUT
-			echo "<meta http-equiv='refresh' content='0'>";
-		} else {
-			echo "<script>alert('You do not have enough items to make this trade');</script>";
+	} elseif ((isset($_POST['bid'])) or (isset($_POST['ask']))) {
+		$myOrder->amt = $_POST['amt'];
+		$myOrder->price = $_POST['price'];
+		$myOrder->timestamp = time();
+		$myOrder->id = $userCheckID;
+
+		if (isset($_POST['bid'])) {
+			if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
+				$myOrder->placeOrder('1');
+			} else {
+				echo 'need more money';
+			}
+		} elseif (isset($_POST['ask'])) {
+			if ($playerData[$myOrder->item] >= $_POST['amt']) {
+				$myOrder->placeOrder('0');
+			} else {
+				echo 'need more items';
+			}
 		}
 	}
 }
@@ -135,50 +161,55 @@ echo $playerData[$supply1];
 
 	<div id='allItems' class='x'>
 		<div id='marketTrade'>
-			<div id='<?php echo $focusItem[0]; ?>'>
+			<div id='<?php echo $focusedItem[0]; ?>'>
 				<h3><span name='itemShowName'></span></h3>
 				<div style='float:left;'>
 					<h4>Limit Order</h4>
 					<form method='post'>
-						<input type='text' name='amt' id='amt' placeholder='Amount'>
+						<input type='text' name='amt' placeholder='Amount'>
 						<input type='text' name='price' placeholder='Price'><br>
-						<button type='submit' name='bid' value='bike'>Bid</button>
-						<button type='submit' name='ask' value='bike'>Ask</button>
+						<button type='submit' name='bid' value='<?php echo $focusedItem[0]; ?>'>Bid</button>
+						<button type='submit' name='ask' value='<?php echo $focusedItem[0]; ?>'>Ask</button>
 					</form><br>
 					
-					<h4>Market Order</h4>
+					<h4>Market Order (Out of Order)</h4>
 					<form method='post'>
-						<input type='text' name='amt' id='amt' placeholder='Amount'><br>
-						<button type='submit' name='buyMarket' value='bike'>Buy</button>
-						<button type='submit' name='sellMarket' value='bike'>Sell</button>
+						<input type='text' name='amt' placeholder='Amount'><br>
+						<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+						<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
 					</form>
 				</div>
 				
-				You have <?php echo $playerData[$focusItem[0]]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
+				<br><table border='1'>
+					<tr>
+						<th>Price</th>
+						<th>Amount</th>
+					</tr>
+					<?php echo $myOrder->displayOrders(); ?>
+				</table><br>
+
+				You have <?php echo $playerData[$focusedItem[0]]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
 			</div>
 		</div>
 		<div id='fixedTrade'>
-			<div id='<?php echo $focusItem[0]; ?>'>
+			<div id='<?php echo $focusedItem[0]; ?>'>
 				<h3><span name='itemShowName'></span></h3>
 				<form method='post'>
 					<input type='text' name='amt' value='Amount'><br>
-					<button type='submit' value='steel' name='buy'>Buy</button>
-				</form><br>
-				<form method='post'>
-					<input type='text' value='Amount' name='amt'><br>
-					<button type='submit' name='sell' value='steel'>Sell</button>
+					<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+					<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
 				</form>
-				You have <?php echo $playerData[$focusItem[0]]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
+				You have <?php echo $playerData[$focusedItem[0]]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
 			</div>
 		</div>
 	</div>
 </div>
 
-<?php echo $focusItem[1]; ?>
+<?php echo $focusedItem[1]; ?>
 
 <script>
 
-var itemName = document.getElementById('<?php echo $focusItem[0]; ?>Choice').innerText
+var itemName = document.getElementById('<?php echo $focusedItem[0]; ?>Choice').innerText
 
 var showFields = document.getElementsByName('itemShowName');
 for (x = 0; x < showFields.length; x++) {

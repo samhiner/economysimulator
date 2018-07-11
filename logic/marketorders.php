@@ -38,6 +38,8 @@ class orderManager {
 			}
 		}
 		return $displayTable;
+
+		//MAJOR ISSUE: none of this works if you don't have orders. then youll get an array string conversion error. even if you are just doing a query to see that there are no rows you get the error so idk how I could possibly get past this but good luck.
 	}
 
 	function displayOrders() {
