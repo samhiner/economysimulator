@@ -1,6 +1,15 @@
 <html>
+<head>
+	<link rel='stylesheet' type='text/css' href='http://localhost/economysimulator/styling/gamepages.css'>
+</head>
 <body>
-Session Verified!
+<div class='tabBackground'>
+	<div class='tabHolder'>
+		<a href='http://localhost/economysimulator/game/index'>Dashboard</a>
+		<a href='http://localhost/economysimulator/game/commoditiesmarket'>Commodities Market</a>
+		<a href='http://localhost/economysimulator/game/stockmarket'>Stock Market</a>
+	</div>
+</div>
 </body>
 </html>
 <?php

@@ -48,43 +48,14 @@ if (isset($_POST['ask'])) {
 .ask {
 	background-color: red;
 }
-.tabBackground {
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 100%;
-	background-color: blue;
-}
-.tabHolder {
-	width: 100%;
-	display: inline-flex;
-	justify-content: space-around;
-	height: 40px;
-}
-.tabHolder > a {
-	font-family: sans-serif;
-	text-decoration: none;
-	color: white;
-	font-size: 30px;
-}
-.pageBody {
-	position: absolute;
-	top: 40px;
-}
 </style>
 <!---->
 
 <body>
 
-<div class='tabBackground'>
-	<div class='tabHolder'>
-		<a href='http://localhost/economysimulator/game/index'>Dashboard</a>
-		<a href='http://localhost/economysimulator/game/commoditiesmarket'>Commodities Market</a>
-		<a href='http://localhost/economysimulator/game/stockmarket'>Stock Market</a>
-	</div>
-</div>
+
 <div class='pageBody'>
-	<p>Buying and selling stocks</p>
+	<p style='margin-top: 0px;'>Buying and selling stocks</p>
 	<hr><br>
 
 	<!--Fake Market-->

@@ -1,0 +1,26 @@
+body {
+	font-family: sans-serif;
+}
+.tabBackground {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	background-color: blue;
+}
+.tabHolder {
+	width: 100%;
+	display: inline-flex;
+	justify-content: space-around;
+	height: 40px;
+}
+.tabHolder > a {
+	font-family: sans-serif;
+	text-decoration: none;
+	color: white;
+	font-size: 30px;
+}
+.pageBody {
+	position: absolute;
+	top: 60px;
+}

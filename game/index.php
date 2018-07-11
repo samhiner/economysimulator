@@ -5,17 +5,6 @@ include('../logic/verify.php');
 
 $jsMakeString = NULL;
 
-//goes to whichever tab they clicked on
-if(isset($_POST['main'])){
-	header('location: http://localhost/economysimulator/game/index');
-}
-if(isset($_POST['trade'])){
-	header('location: http://localhost/economysimulator/game/commoditiesmarket');
-}
-if(isset($_POST['stock'])){
-	header('location: http://localhost/economysimulator/game/stockmarket');
-}
-
 //find manufacturing date
 $makeString = $timeArray['makeDate'];
 
@@ -82,123 +71,117 @@ if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 
 </head>
 <body>
+<div class='pageBody'>
+	<h3 style='margin-top: 0;'>Your Supplies:</h3>
 
-<div class="tab">
+	<?php 
+	echo "You have $" . $playerData["balance"] . "<br>";
+	echo "You have " . $playerData[$material1] . " " . $itemList[$playerClass][0] . "<br>";
+	echo "You have " . $playerData[$material2] . " " . $itemList[$playerClass][1] . "<br>";
+	echo "You have " . $playerData[$material3] . " " . $itemList[$playerClass][2] . "<br>";
+	echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];
+
+	?>
+
+	<br><p>*Insert more data.*</p><br><br><br>
+
+	<h3>Your Factory:</h3>
+	Product: 1 <?php echo $itemList[$playerClass][3]; ?> <br>
+	Materials: 1 <?php echo $itemList[$playerClass][0]; ?>, 1 <?php echo $itemList[$playerClass][1]; ?>, and 1 <?php echo $itemList[$playerClass][2]; ?>
+
 	<form method='post'>
-		<input type='submit' name='main' value="Dashboard">
-		<input type='submit' name='trade' value="Commodities Market">
-		<input type='submit' name='stock' value="Stock Market">
+		<input type='submit' name='make' value='Manufacture' id='make'>
 	</form>
-</div> <br>
 
-<?php 
-echo "You have $" . $playerData["balance"] . "<br>";
-echo "You have " . $playerData[$material1] . " " . $itemList[$playerClass][0] . "<br>";
-echo "You have " . $playerData[$material2] . " " . $itemList[$playerClass][1] . "<br>";
-echo "You have " . $playerData[$material3] . " " . $itemList[$playerClass][2] . "<br>";
-echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];
+	<p id="makeTimer">&infin; Hours, &infin; Minutes, &infin; Seconds</p>
 
-?>
-
-<br><p>*Insert more data.*</p><br><br><br>
-
-<h3>Your Factory:</h3>
-Product: 1 <?php echo $itemList[$playerClass][3]; ?> <br>
-Materials: 1 <?php echo $itemList[$playerClass][0]; ?>, 1 <?php echo $itemList[$playerClass][1]; ?>, and 1 <?php echo $itemList[$playerClass][2]; ?>
-
-<form method='post'>
-	<input type='submit' name='make' value='Manufacture' id='make'>
-</form>
-
-<p id="makeTimer">&infin; Hours, &infin; Minutes, &infin; Seconds</p>
-
-<?php
-if (isset($timerScript)) {
-	echo $timerScript;
-}
-
-if (isset($makeScript)) {
-	echo $makeScript;
-}
-
-if (isset($errorMessage)) {
-	echo $errorMessage;
-}
-?>
-
-<script>
-
-//find difference between end date and now and break down remaining into hrs mins secs
-function countDownClock(finWhen,clock) {
-	var finDate = new Date(finWhen).getTime();
-	var now = new Date();
-	var utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-	var timeLeft = finDate - utc;
-	
-	var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-	var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-	var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-	document.getElementById(clock).innerHTML = hours + " Hours, " + minutes + " Minutes, " + seconds + " Seconds";
-	
-	//refresh page when time is up to ensure PHP kicks in
-	if (timeLeft <= 0) {
-		location.reload();
+	<?php
+	if (isset($timerScript)) {
+		echo $timerScript;
 	}
-}
 
-//Finds time until item is made.
-if (document.getElementById('makeTimer').style.display == 'block') {
-	//turn the manufacturing time into a js time and run countdown function
-	var makeDate = "<?php echo $makeString; ?>";
-	//call it once the first time to prevent 1 sec delay from setinterval
-	countDownClock(makeDate,'makeTimer')
-	var makeTimerScript = setInterval( function() {countDownClock(makeDate,'makeTimer')}, 1000);
-}
-
-function startTimer(decayDate,detailsBox,clock) {
-	//check if false bc this check runs before clicking the box changes "open" to true
-	if (document.getElementById(detailsBox).open == false) {
-		decayDate *= 1000;
-		decayDate += 14400000;
-
-		countDownClock(decayDate,clock)
-		var decayTimerScript = setInterval( function() {countDownClock(decayDate,clock)}, 1000);
+	if (isset($makeScript)) {
+		echo $makeScript;
 	}
-}
 
-</script>
+	if (isset($errorMessage)) {
+		echo $errorMessage;
+	}
+	?>
 
-<h3>Your Supplies:</h3>
-You have:<br>
+	<script>
+
+	//find difference between end date and now and break down remaining into hrs mins secs
+	function countDownClock(finWhen,clock) {
+		var finDate = new Date(finWhen).getTime();
+		var now = new Date();
+		var utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+		var timeLeft = finDate - utc;
+		
+		var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+		document.getElementById(clock).innerHTML = hours + " Hours, " + minutes + " Minutes, " + seconds + " Seconds";
+		
+		//refresh page when time is up to ensure PHP kicks in
+		if (timeLeft <= 0) {
+			location.reload();
+		}
+	}
+
+	//Finds time until item is made.
+	if (document.getElementById('makeTimer').style.display == 'block') {
+		//turn the manufacturing time into a js time and run countdown function
+		var makeDate = "<?php echo $makeString; ?>";
+		//call it once the first time to prevent 1 sec delay from setinterval
+		countDownClock(makeDate,'makeTimer')
+		var makeTimerScript = setInterval( function() {countDownClock(makeDate,'makeTimer')}, 1000);
+	}
+
+	function startTimer(decayDate,detailsBox,clock) {
+		//check if false bc this check runs before clicking the box changes "open" to true
+		if (document.getElementById(detailsBox).open == false) {
+			decayDate *= 1000;
+			decayDate += 14400000;
+
+			countDownClock(decayDate,clock)
+			var decayTimerScript = setInterval( function() {countDownClock(decayDate,clock)}, 1000);
+		}
+	}
+
+	</script>
+
+	<h3>Your Supplies:</h3>
+	You have:<br>
 
 
-<details id='prod1' onclick='startTimer(<?php 
-if (isset($globalDecay->newDecayDate[1])) {
-	echo $globalDecay->newDecayDate[1];
-} else {
-	echo NULL;
-}
-?>,"prod1","prod1CountDown")'>
-	<summary><?php echo $numSupply1 . " " . $itemList[$playerClass][10] . "<br>"; ?></summary>
-	<p>One product will be used up in </p>
-	<p id='prod1CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
-</details>
+	<details id='prod1' onclick='startTimer(<?php 
+	if (isset($globalDecay->newDecayDate[1])) {
+		echo $globalDecay->newDecayDate[1];
+	} else {
+		echo NULL;
+	}
+	?>,"prod1","prod1CountDown")'>
+		<summary><?php echo $numSupply1 . " " . $itemList[$playerClass][10] . "<br>"; ?></summary>
+		<p>One product will be used up in </p>
+		<p id='prod1CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
+	</details>
 
-<details id='prod2' onclick='startTimer(<?php 
-if (isset($globalDecay->newDecayDate[2])) {
-	echo $globalDecay->newDecayDate[2];
-} else {
-	echo NULL;
-}
-?>,"prod2","prod2CountDown")'>
-	<summary><?php echo $numSupply2 . " " . $itemList[$playerClass][11]; ?></summary>
-	<p>One product will be used up in </p>
-	<p id='prod2CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
-</details>
+	<details id='prod2' onclick='startTimer(<?php 
+	if (isset($globalDecay->newDecayDate[2])) {
+		echo $globalDecay->newDecayDate[2];
+	} else {
+		echo NULL;
+	}
+	?>,"prod2","prod2CountDown")'>
+		<summary><?php echo $numSupply2 . " " . $itemList[$playerClass][11]; ?></summary>
+		<p>One product will be used up in </p>
+		<p id='prod2CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
+	</details>
 
 
-<br><br>Go to the Commodities Market to buy more of these items
-
+	<br><br>Go to the Commodities Market to buy more of these items
+</div>
 </body>
 </html>
