@@ -27,7 +27,14 @@ if (isset($_POST['itemLookup'])) {
 	$focusedItem = displayItem($_POST['buy']);
 } elseif (isset($_POST['sell'])) {
 	$focusedItem = displayItem($_POST['sell']);
-} else {
+} elseif (isset($_POST['buyMarket'])) {
+	$focusedItem = displayItem($_POST['buyMarket']);
+} elseif (isset($_POST['sellMarket'])) {
+	$focusedItem = displayItem($_POST['sellMarket']);
+} 
+
+
+else {
 	$focusedItem = displayItem('Mglass');
 }
 
@@ -42,7 +49,7 @@ if (isset($_POST['amt'])) { //ISSUE test this
 	
 	if ((isset($_POST['buy'])) or (isset($_POST['sell']))) {
 		if (isset($_POST['buy'])) {
-			$itemName = $_POST['buy'];
+			$itemName = substr($_POST['buy'],1);
 			$youItems = $playerData[$itemName];
 		
 			$newYouItems = $youItems + $amt;
@@ -52,17 +59,18 @@ if (isset($_POST['amt'])) { //ISSUE test this
 			if($newBalance >= 0) {
 				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
 				//include('productdecay.php');
-				//echo "<meta http-equiv='refresh' content='0'>";
+				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
 				echo "<script>alert('You do not have enough items to make this trade');</script>";
 			}
 		} elseif (isset($_POST['sell'])) {
-			$itemName = $_POST['sell'];
+			$itemName = substr($_POST['sell'],1);
 			$youItems = $playerData[$itemName];
 			
 			$newYouItems = $youItems - $amt;
 			$newBalance = $balance + $price;
 			
+			echo "UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'";
 			//ensures you have enough items for trade
 			if ($newYouItems >= 0) {
 				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
@@ -72,28 +80,47 @@ if (isset($_POST['amt'])) { //ISSUE test this
 				echo "<script>alert('You do not have enough items to make this trade');</script>";
 			}
 		}
-	} elseif ((isset($_POST['bid'])) or (isset($_POST['ask']))) {
+	} elseif ((isset($_POST['bid'])) or (isset($_POST['ask'])) or (isset($_POST['buyMarket'])) or (isset($_POST['sellMarket']))) {
 		$myOrder->amt = $_POST['amt'];
-		$myOrder->price = $_POST['price'];
 		$myOrder->timestamp = time();
 		$myOrder->id = $userCheckID;
 
 		if (isset($_POST['bid'])) {
+			$myOrder->price = $_POST['price'];
 			if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
 				$myOrder->placeOrder('1');
+				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
-				echo 'need more money';
+				echo '<script>alert("need more money");</script>';
 			}
 		} elseif (isset($_POST['ask'])) {
+			$myOrder->price = $_POST['price'];
 			if ($playerData[$myOrder->item] >= $_POST['amt']) {
 				$myOrder->placeOrder('0');
+				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
-				echo 'need more items';
+				echo '<script>alert("need more items");</script>';
+			}
+		} elseif (isset($POST['buyMarket'])) {
+			$myOrder->price = INF;
+			if ($playerData['balance'] >= $myOrder->getMarketPrice($_POST['amt'])) {
+				$myOrder->placeOrder('1', False);
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo '<script>alert("need more money");</script>';
+			}
+
+		} elseif (isset($_POST['sellMarket'])) {
+			$myOrder->price = -INF;
+			if ($playerData[$myOrder->item] >= $_POST['amt']) {
+				$myOrder->placeOrder('0', False);
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo '<script>alert("need more items");</script>';
 			}
 		}
 	}
 }
-
 echo "You have $" . $playerData['balance'];
 echo $playerData[$supply1];
 ?>
@@ -152,11 +179,11 @@ echo $playerData[$supply1];
 					<button type='submit' name='ask' value='<?php echo $focusedItem[0]; ?>'>Ask</button>
 				</form><br>
 				
-				<h4>Market Order (Out of Order)</h4>
+				<h4>Market Order</h4>
 				<form method='post'>
 					<input type='text' name='amt' placeholder='Amount'><br>
-					<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
-					<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
+					<button type='submit' name='buyMarket' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+					<button type='submit' name='sellMarket' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
 				</form>
 			</div>
 			<div class='rightCol'>

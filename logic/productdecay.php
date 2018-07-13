@@ -1,13 +1,6 @@
 <?php
 class productDecay {
 
-	function limitZero($num) {
-		if ($num < 0) {
-			$num = 0;
-		}
-		return $num;
-	}
-
 	public $newDecayDate;
 
 	function checkProdDecay($supplyID,$supply) {

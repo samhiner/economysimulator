@@ -68,6 +68,13 @@ $numSupply2 = $playerData[$itemList[$playerClass][9]];
 $timeQuery = mysqli_query($connect,"SELECT * FROM game1time WHERE id='$userCheckID'");
 $timeArray = mysqli_fetch_array($timeQuery,MYSQLI_ASSOC);
 
+function limitZero($num) {
+	if ($num < 0) {
+		$num = 0;
+	}
+	return $num;
+}
+
 include('productdecay.php');
 
 ?>

@@ -8,6 +8,24 @@ class orderManager {
 		$this->item = $yourItem;
 	}
 
+	function getMarketPrice($totalAmt) {
+		$totalPrice = 0;
+		$orders = mysqli_query($connect,"SELECT price, amt FROM game1prodorders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
+		while ($row = mysqli_fetch_array($orders,MYSQLI_ASSOC)) {
+			$price = $row['price'];
+			$amt = $row['amt'];
+			if ($amt >= $totalAmt) {
+				$totalPrice = $totalAmt * $price;
+				break;
+			} else {
+				$totalAmt -= $amt;	
+				$totalPrice += $amt * $price;
+			}
+		}
+
+		return $totalPrice;
+	}
+
 	function getViewOrders($type) {
 		$item = $this->item;
 		global $connect;
@@ -132,7 +150,7 @@ class orderManager {
 	public $timestamp;
 	public $id;
 
-	function placeOrder($type) {
+	function placeOrder($type, $isOrder = True) {
 		global $connect;
 		if ($type == 0) {
 			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='1' AND item='$this->item' ORDER BY price DESC, timestamp ASC");
@@ -142,13 +160,15 @@ class orderManager {
 		
 		//iterate through opposite kind of orders and merge orders which fall in constraints set by user (for bid must be less than or equal to price and ask is opposite)
 		while ($row = mysqli_fetch_array($trades,MYSQLI_ASSOC)) {
-			if ((($type == 1) and ($this->price <= $row['price'])) or (($type == 0) and ($this->price >= $row['price']))) {
+			echo 'good';
+			if ((($type == 1) and ($this->price >= $row['price'])) or (($type == 0) and ($this->price <= $row['price']))) {
+				echo 'er';
 				$this->completeOrder($row,$type);
 			}
 		}
 
 		//if the order was not able to be competely fulfilled add it to the database
-		if ($this->amt > 0) {
+		if (($this->amt > 0) and ($isOrder == True)) {
 			mysqli_query($connect,"INSERT INTO game1prodorders(item,price,amt,id,type,timestamp) VALUES('$this->item','$this->price','$this->amt','$this->id','$type','$this->timestamp')");
 		}
 
