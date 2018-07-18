@@ -2,346 +2,251 @@
 <?php
 
 include('../logic/verify.php');
+include('../logic/marketorders.php');
 
-//goes to whichever tab they clicked on
-if (isset($_POST['main'])) {
-	header('location: http://localhost/economysimulator/game/index');
+function displayItem($code) {
+	if ($code[0] == 'P') {
+		$showTradeScript = "<script>document.getElementById('marketTrade').style.display = 'block';
+		document.getElementById('fixedTrade').style.display = 'none';</script>";
+	} else {
+		$showTradeScript = "<script>document.getElementById('marketTrade').style.display = 'none';
+		document.getElementById('fixedTrade').style.display = 'block';</script>";
+	}
+
+	return array($code, $showTradeScript);
 }
-if(isset($_POST['trade'])){
-	header('location: http://localhost/economysimulator/game/commoditiesmarket');
-}
-if (isset($_POST['stock'])) {
-	header('location: http://localhost/economysimulator/game/stockmarket');
+
+//look to see if you changed tab or recently submitted an order to change focus to. if none then default to glass
+if (isset($_POST['itemLookup'])) {
+	$focusedItem = displayItem($_POST['itemLookup']);
+} elseif (isset($_POST['bid'])) {
+	$focusedItem = displayItem($_POST['bid']);
+} elseif (isset($_POST['ask'])) {
+	$focusedItem = displayItem($_POST['ask']);
+} elseif (isset($_POST['buy'])) {
+	$focusedItem = displayItem($_POST['buy']);
+} elseif (isset($_POST['sell'])) {
+	$focusedItem = displayItem($_POST['sell']);
+} elseif (isset($_POST['buyMarket'])) {
+	$focusedItem = displayItem($_POST['buyMarket']);
+} elseif (isset($_POST['sellMarket'])) {
+	$focusedItem = displayItem($_POST['sellMarket']);
 } 
 
+
+else {
+	$focusedItem = displayItem('Mglass');
+}
+
+$myOrder = new orderManager(substr($focusedItem[0], 1));
+
 //processes trades
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {	//ISSUE make it so this doesnt run on tab click
+if (isset($_POST['amt'])) { //ISSUE test this
 	//do work not specific to buying/selling (minimizes repeated lines)
 	$amt = $_POST['amt'];
 	$balance = $playerData['balance'];
 	$price = 100 * $amt;
 	
-	if(isset($_POST['buy'])) {
-		$itemName = $_POST['buy'];
-		$youItems = $playerData[$itemName];
-	
-		$newYouItems = $youItems + $amt;
-		$newBalance = $balance - $price;
+	if ((isset($_POST['buy'])) or (isset($_POST['sell']))) {
+		if (isset($_POST['buy'])) {
+			$itemName = substr($_POST['buy'],1);
+			$youItems = $playerData[$itemName];
+		
+			$newYouItems = $youItems + $amt;
+			$newBalance = $balance - $price;
 
-		//ensures you have funds for trade
-		if($newBalance >= 0) {
-			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
-			//include('productdecay.php');
-			echo "<meta http-equiv='refresh' content='0'>";
-		} else {
-			echo "<script>alert('You do not have enough items to make this trade');</script>";
+			//ensures you have funds for trade
+			if($newBalance >= 0) {
+				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+				//include('productdecay.php');
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo "<script>alert('You do not have enough items to make this trade');</script>";
+			}
+		} elseif (isset($_POST['sell'])) {
+			$itemName = substr($_POST['sell'],1);
+			$youItems = $playerData[$itemName];
+			
+			$newYouItems = $youItems - $amt;
+			$newBalance = $balance + $price;
+			
+			echo "UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'";
+			//ensures you have enough items for trade
+			if ($newYouItems >= 0) {
+				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+				//include('productdecay.php'); ISSUE MAY TRIGGER BEFORE PLAYERDATA IS UPDATED CHEKC IT OUT
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo "<script>alert('You do not have enough items to make this trade');</script>";
+			}
 		}
-	} elseif (isset($_POST['sell'])) {
-		$itemName = $_POST['sell'];
-		$youItems = $playerData[$itemName];
-		
-		$newYouItems = $youItems - $amt;
-		$newBalance = $balance + $price;
-		
-		//ensures you have enough items for trade
-		if($newYouItems >= 0) {
-			mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
-			//include('productdecay.php'); ISSUE MAY TRIGGER BEFORE PLAYERDATA IS UPDATED CHEKC IT OUT
-			echo "<meta http-equiv='refresh' content='0'>";
-		} else {
-			echo "<script>alert('You do not have enough items to make this trade');</script>";
+	} elseif ((isset($_POST['bid'])) or (isset($_POST['ask'])) or (isset($_POST['buyMarket'])) or (isset($_POST['sellMarket']))) {
+		$myOrder->amt = $_POST['amt'];
+		$myOrder->timestamp = time();
+		$myOrder->id = $userCheckID;
+
+		if (isset($_POST['bid'])) {
+			$myOrder->price = $_POST['price'];
+			if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
+				$myOrder->placeOrder('1');
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo '<script>alert("need more money");</script>';
+			}
+		} elseif (isset($_POST['ask'])) {
+			$myOrder->price = $_POST['price'];
+			if ($playerData[$myOrder->item] >= $_POST['amt']) {
+				$myOrder->placeOrder('0');
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo '<script>alert("need more items");</script>';
+			}
+		} elseif (isset($POST['buyMarket'])) {
+			$myOrder->price = INF;
+			if ($playerData['balance'] >= $myOrder->getMarketPrice($_POST['amt'])) {
+				$myOrder->placeOrder('1', False);
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo '<script>alert("need more money");</script>';
+			}
+		} elseif (isset($_POST['sellMarket'])) {
+			$myOrder->price = -INF;
+			if ($playerData[$myOrder->item] >= $_POST['amt']) {
+				$myOrder->placeOrder('0', False);
+				echo "<meta http-equiv='refresh' content='0'>";
+			} else {
+				echo '<script>alert("need more items");</script>';
+			}
 		}
 	}
 }
-
 echo "You have $" . $playerData['balance'];
 echo $playerData[$supply1];
-
 ?>
 <html>
 <head>
-<style>
+	<style>
+		.leftCol {
+			float: left;
+		}
+		.rightCol {
+			margin-left: 5%;
+			float: left;
+		}
+	</style>
 
-.leftcol {
-	float: left;
-	width: 45%;
-	border-style: solid;
-	border-color: black;
-	border-width: 1%;
-	border-right-color: white;
-	padding: 2%;
-}
-.rightcol {
-	float: left;
-	width: 45%;
-	border-style: solid;
-	border-color: black;
-	border-width: 1%;
-	padding: 2%;
-}
-.center {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-	padding: 0;
-	text-align: center;
-}
-body {
-	font-family: sans-serif;
-}
-.noVis {
-	display: none;
-}
-
-.x {
-	border: solid;
-	border-color: black;
-	padding-bottom: 300px;
-}
-</style>
-
-<title>Economy Simulator</title>
-
+	<title>Economy Simulator</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.js"></script>
+	<link rel='stylesheet' type='text/css' href='../styling/marketpages.css'>
 </head>
 <body>
-
-<div class="tab">
+<div class='pageBody'>
+	<h4 style='margin-top: 0px;'>Choose which item you would like to trade here.</h4>
 	<form method='post'>
-		<input type='submit' name='main' value="Dashboard">
-		<input type='submit' name='trade' value="Commodities Market">
-		<input type='submit' name='stock' value="Stock Market">
+		<select name='itemLookup' id='itemSelector'>
+			<option selected disabled hidden>Choose an Item</option>
+			<option style='background-color: #efefef; font-weight: bold' disabled>Materials</option>
+			<option id='glassChoice' value='Mglass'>Glass</option>
+			<option id='plasticChoice' value='Mplastic'>Plastic</option>
+			<option id='alumChoice' value='Malum'>Aluminum</option>
+			<option id='siliChoice' value='Msili'>Silicon</option>
+			<option id='steelChoice' value='Msteel'>Steel</option>
+			<option style='background-color: #efefef; font-weight: bold;' disabled>Products</option>
+			<option id='bikeChoice' value='Pbike'>Bicycle</option>
+			<option id='tvChoice' value='Ptv'>TV</option>
+			<option id='shieldChoice' value='Pshield'>Riot Shield</option>
+			<option id='phoneChoice' value='Pphone'>Phone</option>
+			<option id='carChoice' value='Pcar'>Car</option>
+			<option id='laptopChoice' value='Plaptop'>Laptop</option>
+			<option id='smarttvChoice' value='Psmarttv'>Smart TV</option>
+			<option id='dogtagsChoice' value='Pdogtags'>Dog Tags</option>
+			<option id='shaverChoice' value='Pshaver'>Shaver</option>
+		</select><br>
+		<input type='submit'>
 	</form>
-</div>
+	<br><br><br>
+	<hr>
+	<div id='marketTrade' class='tradeHolder'>
+		<div id='<?php echo substr($focusedItem[0], 1); ?>'>
+			<h3><span name='itemShowName'></span></h3>
+			<div class='leftCol' ='float:left;'>
+				<h4 style='margin-top: 0%;'>Limit Order</h4>
+				<form method='post'>
+					<input type='text' name='amt' placeholder='Amount'>
+					<input type='text' name='price' placeholder='Price'><br>
+					<button type='submit' name='bid' value='<?php echo $focusedItem[0]; ?>'>Bid</button>
+					<button type='submit' name='ask' value='<?php echo $focusedItem[0]; ?>'>Ask</button>
+				</form><br>
+				
+				<h4>Market Order</h4>
+				<form method='post'>
+					<input type='text' name='amt' placeholder='Amount'><br>
+					<button type='submit' name='buyMarket' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+					<button type='submit' name='sellMarket' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
+				</form>
+			</div>
+			<div class='rightCol'>
+				<table border='1'>
+					<tr>
+						<th>Price</th>
+						<th>Amount</th>
+					</tr>
+					<?php echo $myOrder->displayOrders(); ?>
+				</table><br>
+				<canvas id='priceGraph'></canvas>
+				You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
+			</div>
 
-<h4>Choose which item you would like to trade here.</h4>
-<select id='itemSelector'>
-	<option style='background-color: #efefef; font-weight: bold' disabled>Materials</option>
-	<option value='glass'>Glass</option>
-	<option value='plastic'>Plastic</option>
-	<option value='alum'>Aluminum</option>
-	<option value='sili'>Silicon</option>
-	<option value='steel'>Steel</option>
-	<option style='background-color: #efefef; font-weight: bold;' disabled>Products</option>
-	<option value='bike'>Bicycle</option>
-	<option value='tv'>TV</option>
-	<option value='shield'>Riot Shield</option>
-	<option value='phone'>Phone</option>
-	<option value='car'>Car</option>
-	<option value='laptop'>Laptop</option>
-	<option value='smarttv'>Smart TV</option>
-	<option value='dogtags'>Dog Tags</option>
-	<option value='shaver'>Shaver</option>
-</select><br><br><br>
-
-<div id='allItems' class='x'>
-	<div id='glass' class='noVis'><!--remove novis from class-->
-		<h3>Glass</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='glass' name='buy'>Buy Glass</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='glass'>Sell Glass</button>
-		</form>
-		You have <?php echo $playerData['glass']; ?> Glass. One Glass costs $100.<br><br>
-	</div>
-
-	<div id='plastic' class='noVis'>
-		<h3>Plastic</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='plastic' name='buy'>Buy Plastic</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='plastic'>Sell Plastic</button>
-		</form>
-		You have <?php echo $playerData['plastic']; ?> Plastic. One Plastic costs $100.<br><br>
-	</div>
-
-	<div id='alum' class='noVis'>
-		<h3>Aluminum</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='alum' name='buy'>Buy Aluminum</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='alum'>Sell Aluminum</button>
-		</form>
-		You have <?php echo $playerData['alum']; ?> Aluminum. One Aluminum costs $100.<br><br>
-	</div>
-
-	<div id='sili' class='noVis'>
-		<h3>Silicon</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='sili' name='buy'>Buy Silicon</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='sili'>Sell Silicon</button>
-		</form>
-		You have <?php echo $playerData['sili']; ?> Silicon. One Silicon costs $100.<br><br>
-	</div>
-
-	<div id='steel' class='noVis'>
-		<h3>Steel</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='steel' name='buy'>Buy Steel</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='steel'>Sell Steel</button>
-		</form>
-		You have <?php echo $playerData['steel']; ?> Steel. One Steel costs $100.<br><br>
-	</div>
-
-<!---->	
-	<div id='bike' class=''><!--add novis to class-->
-		<h3>Bicycle</h3>
-		<div style='float:left;'>
-			<h4>Limit Order</h4>
-			<form method='post'>
-				<input type='text' name='amt' id='amt' placeholder='Amount'>
-				<input type='text' name='price' placeholder='Price'><br>
-				<button type='submit' name='bid' value='bike'>Bid</button>
-				<button type='submit' name='ask' value='bike'>Ask</button>
-			</form><br>
-			
-			<h4>Market Order</h4>
-			<form method='post'>
-				<input type='text' name='amt' id='amt' placeholder='Amount'><br>
-				<button type='submit' name='buyMarket' value='bike'>Buy</button>
-				<button type='submit' name='sellMarket' value='bike'>Sell</button>
-			</form>
 		</div>
-		
-		You have <?php echo $playerData['bike']; ?> Bicycles. One Bicycle costs $100.<br><br>
 	</div>
-
-<!---->
-	
-	<div id='tv' class='noVis'>
-		<h3>TV</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='tv' name='buy'>Buy TV</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='tv'>Sell TV</button>
-		</form>
-		You have <?php echo $playerData['tv']; ?> TV. One TV costs $100.<br><br>
-	</div>
-
-	<div id='shield' class='noVis'>
-		<h3>Riot Shield</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='shield' name='buy'>Buy Riot Shield</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='shield'>Sell Riot Shield</button>
-		</form>
-		You have <?php echo $playerData['shield']; ?> Riot Shield. One Riot Shield costs $100.<br><br>
-	</div>
-
-	<div id='phone' class='noVis'>
-		<h3>Phone</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='phone' name='buy'>Buy Phone</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='phone'>Sell Phone</button>
-		</form>
-		You have <?php echo $playerData['phone']; ?> Phone. One Phone costs $100.<br><br>
-	</div>
-
-	<div id='car' class='noVis'>
-		<h3>Car</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='car' name='buy'>Buy Car</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='car'>Sell Car</button>
-		</form>
-		You have <?php echo $playerData['car']; ?> Car. One Car costs $100.<br><br>
-	</div>
-
-	<div id='laptop' class='noVis'>
-		<h3>Laptop</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='laptop' name='buy'>Buy Laptop</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='laptop'>Sell Laptop</button>
-		</form>
-		You have <?php echo $playerData['laptop']; ?> Laptop. One Laptop costs $100.<br><br>
-	</div>
-
-	<div id='smarttv' class='noVis'>
-		<h3>Smart TV</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='smarttv' name='buy'>Buy Smart TV</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='smarttv'>Sell Smart TV</button>
-		</form>
-		You have <?php echo $playerData['smarttv']; ?> Smart TV. One Smart TV costs $100.<br><br>
-	</div>
-
-	<div id='dogtags' class='noVis'>
-		<h3>Dog Tags</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='dogtags' name='buy'>Buy Dog Tags</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='dogtags'>Sell Dog Tags</button>
-		</form>
-		You have <?php echo $playerData['dogtags']; ?> Dog Tags. One Dog Tags costs $100.<br><br>
-	</div>
-
-	<div id='shaver' class='noVis'>
-		<h3>Shaver</h3>
-		<form method='post'>
-			<input type='text' name='amt' value='Amount'><br>
-			<button type='submit' value='shaver' name='buy'>Buy Shaver</button>
-		</form><br>
-		<form method='post'>
-			<input type='text' value='Amount' name='amt'><br>
-			<button type='submit' name='sell' value='shaver'>Sell Shaver</button>
-		</form>
-		You have <?php echo $playerData['shaver']; ?> Shaver. One Shaver costs $100.<br><br>
+	<div id='fixedTrade' class='tradeHolder'>
+		<div id='<?php echo substr($focusedItem[0], 1); ?>'>
+			<h3><span name='itemShowName'></span></h3>
+			<form method='post'>
+				<input type='text' name='amt' placeholder='Amount'><br>
+				<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
+				<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
+			</form>
+			You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
+		</div>
 	</div>
 </div>
+
+<?php echo $focusedItem[1]; ?>
 
 <script>
 
-//sees when you choose an item from the dropdown and shows that div + hides other divs
-itemSelector.addEventListener('input', function () {
-	//make all children of 'allItems invisivle'
-	var allItems = document.getElementById('allItems').children;
-	for (x = 0; x < allItems.length; x++) {
-		allItems[x].style.display = 'none';
+var itemName = document.getElementById('<?php echo substr($focusedItem[0], 1); ?>Choice').innerText
+
+var showFields = document.getElementsByName('itemShowName');
+for (var x = 0; x < showFields.length; x++) {
+	showFields[x].innerText = itemName;
+}
+
+sizeData = <?php echo $myOrder->getHistory(); ?>;
+for (var x = 0; x < 2; x++) {
+	if (sizeData[x] == null) {
+		sizeData[x] = [0]
 	}
-	
-	//make selected div visible (undoes above for loop for that div)
-	var showDiv = document.getElementById('itemSelector').value;
-	document.getElementById(showDiv).style.display = 'block';
+}
+
+canvas = document.getElementById('priceGraph').getContext('2d');
+myChart = new Chart(canvas, {
+	type: 'line',
+	data: {
+		labels: sizeData[0],
+		datasets: [
+			{
+				data: sizeData[1],
+				fill: false,
+			}
+		]
+	},
+	options: {
+		legend: {
+			display: false
+		},
+	}
 });
 
 </script>

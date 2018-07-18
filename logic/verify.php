@@ -1,6 +1,15 @@
 <html>
+<head>
+	<link rel='stylesheet' type='text/css' href='http://localhost/economysimulator/styling/gamepages.css'>
+</head>
 <body>
-Session Verified!
+<div class='tabBackground'>
+	<div class='tabHolder'>
+		<a href='http://localhost/economysimulator/game/index'>Dashboard</a>
+		<a href='http://localhost/economysimulator/game/commoditiesmarket'>Commodities Market</a>
+		<a href='http://localhost/economysimulator/game/stockmarket'>Stock Market</a>
+	</div>
+</div>
 </body>
 </html>
 <?php
@@ -58,6 +67,13 @@ $numSupply2 = $playerData[$itemList[$playerClass][9]];
 
 $timeQuery = mysqli_query($connect,"SELECT * FROM game1time WHERE id='$userCheckID'");
 $timeArray = mysqli_fetch_array($timeQuery,MYSQLI_ASSOC);
+
+function limitZero($num) {
+	if ($num < 0) {
+		$num = 0;
+	}
+	return $num;
+}
 
 include('productdecay.php');
 
