@@ -25,8 +25,7 @@ class productDecay {
 				if ($now - $decayDate >= 0) {
 					$timeSince = $now - $decayDate;
 					$daysSince = floor($timeSince / (60*60*24)) + 1;
-					echo $daysSince;
-					$newSupplies = $this->limitZero($playerData[$supply] - $daysSince);
+					$newSupplies = limitZero($playerData[$supply] - $daysSince);
 
 					//find the overdue time that was less than a day and create a new due date that is a day in advance but subtracted by that time
 					//so someone can't go in every 36 hours and only lose half supplies bc unused overdue time is factored in.

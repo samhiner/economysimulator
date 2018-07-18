@@ -109,7 +109,6 @@ if (isset($_POST['amt'])) { //ISSUE test this
 			} else {
 				echo '<script>alert("need more money");</script>';
 			}
-
 		} elseif (isset($_POST['sellMarket'])) {
 			$myOrder->price = -INF;
 			if ($playerData[$myOrder->item] >= $_POST['amt']) {
@@ -126,19 +125,19 @@ echo $playerData[$supply1];
 ?>
 <html>
 <head>
-<style>
-.leftCol {
-	float: left;
-}
-.rightCol {
-	margin-left: 5%;
-	float: left;
-}
-</style>
+	<style>
+		.leftCol {
+			float: left;
+		}
+		.rightCol {
+			margin-left: 5%;
+			float: left;
+		}
+	</style>
 
-<title>Economy Simulator</title>
-<link rel='stylesheet' type='text/css' href='../styling/marketpages.css'>
-
+	<title>Economy Simulator</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.js"></script>
+	<link rel='stylesheet' type='text/css' href='../styling/marketpages.css'>
 </head>
 <body>
 <div class='pageBody'>
@@ -194,6 +193,7 @@ echo $playerData[$supply1];
 					</tr>
 					<?php echo $myOrder->displayOrders(); ?>
 				</table><br>
+				<canvas id='priceGraph'></canvas>
 				You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
 			</div>
 
@@ -219,9 +219,35 @@ echo $playerData[$supply1];
 var itemName = document.getElementById('<?php echo substr($focusedItem[0], 1); ?>Choice').innerText
 
 var showFields = document.getElementsByName('itemShowName');
-for (x = 0; x < showFields.length; x++) {
+for (var x = 0; x < showFields.length; x++) {
 	showFields[x].innerText = itemName;
 }
+
+sizeData = <?php echo $myOrder->getHistory(); ?>;
+for (var x = 0; x < 2; x++) {
+	if (sizeData[x] == null) {
+		sizeData[x] = [0]
+	}
+}
+
+canvas = document.getElementById('priceGraph').getContext('2d');
+myChart = new Chart(canvas, {
+	type: 'line',
+	data: {
+		labels: sizeData[0],
+		datasets: [
+			{
+				data: sizeData[1],
+				fill: false,
+			}
+		]
+	},
+	options: {
+		legend: {
+			display: false
+		},
+	}
+});
 
 </script>
 
