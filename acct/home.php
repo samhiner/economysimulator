@@ -13,6 +13,7 @@ if (!isset($_SESSION['userData'])){
 
 $userData = $_SESSION['userData'];
 $userCheckID = $userData['id'];
+$username = $userData['username'];
 
 //send to game if they have profile
 $playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
@@ -27,7 +28,8 @@ if (isset($_POST['a'])) {
 	for ($x = 0; $x <= 9; $x++) {
 		if ($_POST['a'] == $x) {
 			mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','$x','2000')");
-			mysqli_query($connect,"INSERT INTO game1time(id,lastday) VALUES('$userCheckID','$time')");
+			mysqli_query($connect,"INSERT INTO game1time(id,lastday) VALUES('$userCheckID','$time')"); //ISSUE update to current time settings
+			//mysqli_query($connect, "ALTER TABLE game1shares ADD $username INT(11) DEFAULT 0");
 		}
 	}
 	header('location: http://localhost/economysimulator/game/index');

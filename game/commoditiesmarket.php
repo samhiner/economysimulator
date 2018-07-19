@@ -88,7 +88,7 @@ if (isset($_POST['amt'])) { //ISSUE test this
 		if (isset($_POST['bid'])) {
 			$myOrder->price = $_POST['price'];
 			if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
-				$myOrder->placeOrder('1');
+				$myOrder->placeOrder('1', 'prod');
 				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
 				echo '<script>alert("need more money");</script>';
@@ -96,15 +96,15 @@ if (isset($_POST['amt'])) { //ISSUE test this
 		} elseif (isset($_POST['ask'])) {
 			$myOrder->price = $_POST['price'];
 			if ($playerData[$myOrder->item] >= $_POST['amt']) {
-				$myOrder->placeOrder('0');
+				$myOrder->placeOrder('0', 'prod');
 				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
 				echo '<script>alert("need more items");</script>';
 			}
 		} elseif (isset($POST['buyMarket'])) {
 			$myOrder->price = INF;
-			if ($playerData['balance'] >= $myOrder->getMarketPrice($_POST['amt'])) {
-				$myOrder->placeOrder('1', False);
+			if ($playerData['balance'] >= $myOrder->getMarketPrice($_POST['amt'],'prod')) {
+				$myOrder->placeOrder('1', 'prod', False);
 				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
 				echo '<script>alert("need more money");</script>';
@@ -112,7 +112,7 @@ if (isset($_POST['amt'])) { //ISSUE test this
 		} elseif (isset($_POST['sellMarket'])) {
 			$myOrder->price = -INF;
 			if ($playerData[$myOrder->item] >= $_POST['amt']) {
-				$myOrder->placeOrder('0', False);
+				$myOrder->placeOrder('0', 'prod', False);
 				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
 				echo '<script>alert("need more items");</script>';
@@ -191,7 +191,7 @@ echo $playerData[$supply1];
 						<th>Price</th>
 						<th>Amount</th>
 					</tr>
-					<?php echo $myOrder->displayOrders(); ?>
+					<?php echo $myOrder->displayOrders('prod'); ?>
 				</table><br>
 				<canvas id='priceGraph'></canvas>
 				You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
@@ -223,7 +223,7 @@ for (var x = 0; x < showFields.length; x++) {
 	showFields[x].innerText = itemName;
 }
 
-sizeData = <?php echo $myOrder->getHistory(); ?>;
+sizeData = <?php echo $myOrder->getHistory('prod'); ?>;
 for (var x = 0; x < 2; x++) {
 	if (sizeData[x] == null) {
 		sizeData[x] = [0]
