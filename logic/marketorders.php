@@ -140,8 +140,13 @@ class orderManager {
 		global $connect;
 		if ($type == 0) {
 			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='1' AND item='$this->item' ORDER BY price DESC, timestamp ASC");
+			mysqli_query($connect,"UPDATE game1players SET $this->item=$this->item-$this->amt WHERE id='$this->id'");
+			echo "<script>alert('$amt $this->item have been removed from your account to set up the order.');</script>";
 		} else {
 			$trades = mysqli_query($connect,"SELECT * FROM game1prodorders WHERE type='0' AND item='$this->item' ORDER BY price ASC, timestamp ASC");
+			$cost = $this->amt * $this->price;
+			mysqli_query($connect,"UPDATE game1players SET balance=balance-$cost WHERE id='$this->id'");
+			echo "<script>alert('$cost dollars have been removed from your account to set up the order.');</script>";
 		}
 		
 		//iterate through opposite kind of orders and merge orders which fall in constraints set by user (for bid must be less than or equal to price and ask is opposite)
@@ -186,11 +191,47 @@ class orderManager {
 		$this->amt -= $amtChange;
 
 		//change balance and amt of product for the original orderer based on transaction
-		mysqli_query($connect,"UPDATE game1players SET $this->item = $this->item + $amtDiff, balance = balance - $balanceDiff WHERE id = '" . $this->id . "'");
-		mysqli_query($connect,"UPDATE game1players SET $this->item = $this->item - $amtDiff, balance = balance + $balanceDiff WHERE id = '" . $trader2['id'] . "'");
+		mysqli_query($connect,"UPDATE game1players SET $this->item = $this->item + $amtDiff WHERE id = '" . $this->id . "'");
+		mysqli_query($connect,"UPDATE game1players SET balance = balance + $balanceDiff WHERE id = '" . $trader2['id'] . "'");
 
 		//add order to history (for graphs)
 		mysqli_query($connect,"INSERT INTO game1prodhistory(item,timestamp,price) VALUES('$this->item','$this->timestamp','" . $trader2['price'] . "')");
 	}
 }
+
+function getUserOrders($id) {
+	global $connect;
+	$table = '';
+	$removeList = [];
+	$orders = mysqli_query($connect, "SELECT * FROM game1prodorders WHERE id='$id'");
+	while ($row = mysqli_fetch_array($orders)) {
+		if ($row['type'] == 0) {
+			$type = 'Ask';
+		} else {
+			$type = 'Bid';
+		}
+
+		$table .= "<tr>
+			<td>" . $row['item'] . "</td>
+			<td>" . $row['price'] . "</td>
+			<td>" . $row['amt'] . "</td>
+			<td>$type</td>
+			<td>
+				<form method='post'>
+					<button type='submit' name='removeOrder' value='" . $row['timestamp'] . "'>Remove</button>
+				</form>
+			</td>
+		</tr>";
+
+		$removeList[] = $row['timestamp'];
+
+	}
+
+	if ($table == '') {
+		$table = '<tr><td colspan="5" style="text-align: center;">No Orders</td></tr>';
+	}
+
+	return [$table, $removeList];
+}
+
 ?>

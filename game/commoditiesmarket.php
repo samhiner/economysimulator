@@ -135,7 +135,7 @@ echo $playerData[$supply1];
 		}
 	</style>
 
-	<title>Economy Simulator</title>
+	<title>Commodities Market | Economy Simulator</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.js"></script>
 	<link rel='stylesheet' type='text/css' href='../styling/marketpages.css'>
 </head>

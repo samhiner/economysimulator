@@ -2,6 +2,7 @@
 <?php
 
 include('../logic/verify.php');
+include('../logic/marketorders.php');
 
 $jsMakeString = NULL;
 
@@ -62,12 +63,52 @@ if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 	$errorMessage = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
 }
 
+//sees if you clicked to remove anything and gets a table of all of your orders
+function removalCheck() {
+	global $userCheckID;
+	global $connect;
+
+	$ordArray = getUserOrders($userCheckID);
+	$ordTable = $ordArray[0];
+	$remove = $ordArray[1];
+
+	if (isset($_POST['removeOrder'])) {
+		echo 'weeeee';
+		for ($x = 0; $x < count($remove); $x++) {
+			echo $remove[$x] . '.';
+			if ($_POST['removeOrder'] == $remove[$x]) {
+				echo 'heal ueaj';
+				$timestamp = $remove[$x];
+				$orderInfo = mysqli_fetch_assoc(mysqli_query($connect,"SELECT * FROM game1prodorders WHERE id='$userCheckID' AND timestamp='$timestamp'"));
+				$cost = $orderInfo['amt'] * $orderInfo['price'];
+				$amt = $orderInfo['amt'];
+				$item = $orderInfo['item'];
+
+				mysqli_query($connect,"DELETE FROM game1prodorders WHERE timestamp='$timestamp' AND id='$userCheckID'");
+
+				if ($orderInfo['type'] == '1') {
+					mysqli_query($connect,"UPDATE game1players SET balance=balance+$cost WHERE id='$userCheckID'");
+					echo "<script>alert('You have recieved $cost dollars.')</script>";
+					echo "<meta http-equiv='refresh' content='0'>";
+				} elseif ($orderInfo['type'] == '0') {
+					mysqli_query($connect,"UPDATE game1players SET $item=$item+$amt WHERE id='$userCheckID'");
+					echo "<script>alert('You have recieved $amt $item.')</script>";
+					echo "<meta http-equiv='refresh' content='0'>";					
+				}
+			}
+		}	
+	}
+
+	return $ordTable;
+}
+
+$ordTable = removalCheck();
 
 ?>
 <html>
 <head>
 
-<title>Economy Simulator</title>
+<title>Dashboard | Economy Simulator</title>
 
 </head>
 <body>
@@ -80,8 +121,19 @@ if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 	echo "You have " . $playerData[$material2] . " " . $itemList[$playerClass][1] . "<br>";
 	echo "You have " . $playerData[$material3] . " " . $itemList[$playerClass][2] . "<br>";
 	echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];
+	?><br><br>
 
-	?>
+
+	<table border='1'>
+		<tr>
+			<th>Item</th>
+			<th>Price</th>
+			<th>Amount</th>
+			<th>Type</th>
+			<th>Delete</th>
+		</tr>
+		<?php echo $ordTable; ?>
+	</table>
 
 	<br><p>*Insert more data.*</p><br><br><br>
 
