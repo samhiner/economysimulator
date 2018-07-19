@@ -25,8 +25,9 @@ body {
 	position: absolute;
 	top: 60px;
 	left: 0px;
-	width: 99%;
+	width: 98%;
 }
 .pageBody {
 	padding-left: 1%;
+	padding-right: 1%;
 }
