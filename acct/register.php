@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <?php
 	$connect = mysqli_connect('localhost', 'root', NULL, 'econ_data');
-	if(mysqli_connect_errno($connect)) {
+	if (mysqli_connect_errno($connect)) {
 		echo 'Failed to connect';
 	}
     
@@ -21,14 +21,13 @@
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//"clean" all inputs to prevent sql injection and hash password
 		$cleanUsername = dataCleaner($_POST["username"]);
-		$cleanEmail = dataCleaner($_POST["email"]);
 		$cleanPassword = hash('ripemd160',dataCleaner($_POST["password"]));
 
 		$result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$cleanUsername'");
 		$count = mysqli_num_rows($result);
 
 		if($count == 0) {
-			mysqli_query($connect,"INSERT INTO users(username,password,email) VALUES('$cleanUsername','$cleanPassword','$cleanEmail')");
+			mysqli_query($connect,"INSERT INTO users(username,password) VALUES('$cleanUsername','$cleanPassword')");
 			$hideAll = "<script>document.getElementById('all').style.display = 'none';</script>";
 			$hideThank = "<script>document.getElementById('thank').style.display = 'block';</script>";
 		} else {
@@ -57,8 +56,7 @@
   
   <!--Enter credentials-->
   <form method="post" action="">
-    Username:<br><input type="text" name="username" onkeyup="genVal(user)" onkeyup ="" required><br><br>
-    Email Address: <br><input type="text" name="email" onkeyup="genVal(email)" required><br><br>
+    Username:<br><input type="text" name="username" onkeyup="genVal('user')" onkeyup ="" required><br><br>
     Password:<br><input type="password" name="password" onkeyup="passVal()" required><br><br>
     Confirm Password:<br><input type="password" name="passwordconf" onkeyup="passVal()" required><br><br>
     
@@ -72,7 +70,7 @@
 <p id="noPassMatch" class='noVis'>Passwords do not match</p>
   
 <div id='thank' class='noVis'>
-  <p>Thank you for registering for The Economy Simulator. Click the link provided in the email sent to you within the next 24 hours to verify your registration. If your account is not verified in 24 hours, you will have to restart the registration process.</p>
+  <p>Thank you for registering for The Economy Simulator. <a href='http://localhost/economysimulator/acct/login.php'>Log in</a> using the credentials you entered here.</p>
 </div>
 
 <?php
