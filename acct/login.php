@@ -61,7 +61,7 @@
 	<input type='text' name='username'> <br><br>
 	Password: <br>
 	<input type='password' name='password'> <br><br>
-	<input type='submit' value='Submit'>
+	<input type='submit' value='Log In'>
     <a href='register'>Register</a>
 </form>
 	

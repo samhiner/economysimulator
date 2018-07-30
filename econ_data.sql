@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 09, 2018 at 03:22 AM
+-- Generation Time: Jul 30, 2018 at 02:24 AM
 -- Server version: 5.7.21
 -- PHP Version: 5.6.35
 
@@ -56,10 +56,32 @@ CREATE TABLE IF NOT EXISTS `game1players` (
 --
 
 INSERT INTO `game1players` (`id`, `class`, `balance`, `glass`, `plastic`, `alum`, `sili`, `steel`, `bike`, `tv`, `shield`, `phone`, `car`, `laptop`, `smarttv`, `dogtags`, `shaver`, `blender`) VALUES
-(9, 4, 700, 59, 0, 53, 77, 3, 2, 0, 0, 56, 358, 0, 0, 0, 0, 2),
-(21, 2, 2000, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0),
-(28, 6, 3000, 0, 0, 0, 0, 0, 118, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(29, 9, 2000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1348);
+(0, 7, 3500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(9, 4, 3104, 60, 0, 55, 55, 6, 4, 0, 20, 55, 361, 0, 0, 0, 0, 0),
+(36, 0, 4750, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `game1prodhistory`
+--
+
+DROP TABLE IF EXISTS `game1prodhistory`;
+CREATE TABLE IF NOT EXISTS `game1prodhistory` (
+  `item` varchar(11) NOT NULL,
+  `timestamp` int(11) NOT NULL,
+  `price` int(11) NOT NULL,
+  `iterator` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`iterator`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `game1prodhistory`
+--
+
+INSERT INTO `game1prodhistory` (`item`, `timestamp`, `price`, `iterator`) VALUES
+('shield', 1531450965, 1, 1),
+('shield', 1531451035, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -77,18 +99,69 @@ CREATE TABLE IF NOT EXISTS `game1prodorders` (
   `id` int(11) NOT NULL,
   `iterator` int(11) NOT NULL AUTO_INCREMENT COMMENT 'does nothing',
   PRIMARY KEY (`iterator`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `game1prodorders`
+-- Table structure for table `game1sechistory`
 --
 
-INSERT INTO `game1prodorders` (`item`, `type`, `price`, `amt`, `timestamp`, `id`, `iterator`) VALUES
-('bike', 0, 500, 3, 1528766351, 28, 1),
-('bike', 0, 600, 17, 1528766364, 28, 2),
-('bike', 0, 700, 26, 1528766372, 28, 3),
-('bike', 1, 499, 2, 1528766456, 9, 4),
-('bike', 1, 400, 1, 1528766591, 9, 5);
+DROP TABLE IF EXISTS `game1sechistory`;
+CREATE TABLE IF NOT EXISTS `game1sechistory` (
+  `item` varchar(11) NOT NULL,
+  `timestamp` int(11) NOT NULL,
+  `price` int(11) NOT NULL,
+  `iterator` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`iterator`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `game1secorders`
+--
+
+DROP TABLE IF EXISTS `game1secorders`;
+CREATE TABLE IF NOT EXISTS `game1secorders` (
+  `item` varchar(11) NOT NULL,
+  `type` tinyint(1) NOT NULL COMMENT ' 1 = bid,  0 = ask',
+  `price` int(11) NOT NULL,
+  `amt` int(11) NOT NULL,
+  `timestamp` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `iterator` int(11) NOT NULL AUTO_INCREMENT COMMENT 'does nothing',
+  PRIMARY KEY (`iterator`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `game1secorders`
+--
+
+INSERT INTO `game1secorders` (`item`, `type`, `price`, `amt`, `timestamp`, `id`, `iterator`) VALUES
+('yui', 0, 4750, 25, 1532916835, 0, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `game1shares`
+--
+
+DROP TABLE IF EXISTS `game1shares`;
+CREATE TABLE IF NOT EXISTS `game1shares` (
+  `id` int(11) NOT NULL,
+  `hey` int(11) DEFAULT '0',
+  `yui` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `game1shares`
+--
+
+INSERT INTO `game1shares` (`id`, `hey`, `yui`) VALUES
+(9, 100, 0),
+(36, 0, 75);
 
 -- --------------------------------------------------------
 
@@ -112,9 +185,9 @@ CREATE TABLE IF NOT EXISTS `game1time` (
 --
 
 INSERT INTO `game1time` (`id`, `makeDate`, `decayDate1`, `haveSupply1`, `decayDate2`, `haveSupply2`) VALUES
-(9, '2000-01-01 00:00:00', '2018-06-25 04:10:08', 0, '2018-07-02 15:04:39', 1),
-(21, '2000-01-01 00:00:00', '2000-01-01 00:00:00', 0, '2000-01-01 00:00:00', 0),
-(28, '2000-01-01 00:00:00', '2000-01-01 00:00:00', 0, '2000-01-01 00:00:00', 0);
+(0, '2000-01-01 00:00:00', '2000-01-01 00:00:00', 0, '2000-01-01 00:00:00', 0),
+(9, '2000-01-01 00:00:00', '2018-07-20 10:21:11', 0, '2018-07-20 10:21:11', 0),
+(36, '2000-01-01 00:00:00', '2000-01-01 00:00:00', 0, '2000-01-01 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -127,32 +200,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(150) NOT NULL,
   `password` varchar(150) NOT NULL,
-  `email` varchar(150) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `email`) VALUES
-(8, 'uu', '0708f09be4759012a5eff2b91916e0a548bacc1b', 'jj'),
-(9, 'hey', 'aa0d576b8de5cef4668d69b6b9826ca6bd3f219c', 'hey'),
-(14, 'yu', 'yu', 'yu'),
-(16, 'ji', 'ji', 'ji'),
-(17, '789', '789', '789'),
-(18, 'uioo', 'uiouio', 'uio'),
-(19, 'uiuoiui', 'uiouio', 'uiouoi'),
-(20, 'hu', 'hu', 'hu'),
-(21, 'ui', 'ui', 'ui'),
-(22, 'jlk', 'jk', 'jlk'),
-(23, 'jk', 'jk', 'jk'),
-(24, 'io', 'io', 'io'),
-(25, 'gh', 'gh', 'gh'),
-(26, 'ty', 'ty', 'ty'),
-(27, 'hj', 'hj', 'hj'),
-(28, 'yui', 'yui', 'yiu'),
-(29, 'kl', 'dd95c390bec1c2a71907bd8fcc61abe355a69332', 'kl');
+INSERT INTO `users` (`id`, `username`, `password`) VALUES
+(0, 'admin', '7dd12f3a9afa0282a575b8ef99dea2a0c1becb51'),
+(9, 'hey', 'aa0d576b8de5cef4668d69b6b9826ca6bd3f219c'),
+(36, 'yui', 'e4278f8cf23079a0c1b90489c022050ebc2a63f7');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
