@@ -6,14 +6,13 @@ class productDecay {
 	function checkProdDecay($supplyID,$supply) {
 		global $timeArray;
 		global $playerData;
-		global $connect;
 		global $userCheckID;
 
 		if ($playerData[$supply] > 0) {
 			//if they just got a product from having none (would be from function running on commodmkt trade) update the db to be accurate and set prod to decay in a day
 			if ($timeArray['haveSupply' . $supplyID] == '0') {
 				$decayWhen = date('Y-m-d H:i:s', time() + (60*60*24));
-				mysqli_query($connect,"UPDATE game1time SET decayDate$supplyID='$decayWhen', haveSupply$supplyID='1' WHERE id='$userCheckID'");
+				query("UPDATE game1time SET decayDate$supplyID='$decayWhen', haveSupply$supplyID='1' WHERE id='$userCheckID'");
 			//if database is accurate and have product, decayDate has to have already been registered
 			//so check if they have passed decayDate (and by how many days) and take according actions 
 			} else {
@@ -34,11 +33,11 @@ class productDecay {
 
 					$this->newDecayDate[$supplyID] = $newDecayDate;
 
-					mysqli_query($connect,"UPDATE game1players SET $supply = '$newSupplies' WHERE id='$userCheckID'");
-					mysqli_query($connect,"UPDATE game1time SET decayDate$supplyID = '$newDecayDate' WHERE id='$userCheckID'");
+					query("UPDATE game1players SET $supply = '$newSupplies' WHERE id='$userCheckID'");
+					query("UPDATE game1time SET decayDate$supplyID = '$newDecayDate' WHERE id='$userCheckID'");
 
 					if ($newSupplies == 0) {
-						mysqli_query($connect,"UPDATE game1time SET haveSupply$supplyID = '0'");
+						query("UPDATE game1time SET haveSupply$supplyID = '0'");
 					}
 
 					echo "<meta http-equiv='refresh' content='0'>";
@@ -50,7 +49,7 @@ class productDecay {
 		} else {
 			//if they don't have product and the database says they do, update the database to be accurate
 			if ($timeArray['haveSupply' . $supplyID] == '1') {
-				mysqli_query($connect,"UPDATE game1time SET haveSupply$supplyID='0' WHERE id='userCheckID'");
+				query("UPDATE game1time SET haveSupply$supplyID='0' WHERE id='userCheckID'");
 			}
 		}
 	}

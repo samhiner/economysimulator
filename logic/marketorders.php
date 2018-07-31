@@ -10,7 +10,7 @@ class orderManager {
 
 	function getMarketPrice($totalAmt,$security) {
 		$totalPrice = 0;
-		$orders = mysqli_query($connect,"SELECT price, amt FROM game1" . $security . "orders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
+		$orders = query("SELECT price, amt FROM game1" . $security . "orders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
 		while ($row = mysqli_fetch_array($orders,MYSQLI_ASSOC)) {
 			$price = $row['price'];
 			$amt = $row['amt'];
@@ -28,14 +28,14 @@ class orderManager {
 
 	function getViewOrders($type,$security) {
 		$item = $this->item;
-		global $connect;
+		
 
 		if ($type == 1) {
-			$orders = mysqli_query($connect,"SELECT price, amt FROM game1" . $security . "orders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
+			$orders = query("SELECT price, amt FROM game1" . $security . "orders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
 		} else {
 			//gets an array of 5 lowest unique prices and then gets an array including all orders in that price range
-			$maxAsk = mysqli_fetch_array(mysqli_query($connect,"SELECT * FROM game1" . $security . "orders WHERE type='0' AND item='$item' GROUP BY price ORDER BY price ASC LIMIT 5"),MYSQLI_NUM)[4];
-			$orders = mysqli_query($connect,"SELECT price, amt FROM game1" . $security . "orders WHERE type='0' AND item='$item' AND price<='$maxAsk' ORDER BY price DESC, timestamp ASC");
+			$maxAsk = mysqli_fetch_array(query("SELECT * FROM game1" . $security . "orders WHERE type='0' AND item='$item' GROUP BY price ORDER BY price ASC LIMIT 5"),MYSQLI_NUM)[4];
+			$orders = query("SELECT price, amt FROM game1" . $security . "orders WHERE type='0' AND item='$item' AND price<='$maxAsk' ORDER BY price DESC, timestamp ASC");
 		}
 		
 		$orderRows = mysqli_num_rows($orders);
@@ -105,10 +105,10 @@ class orderManager {
 	}
 
 	function getHistory($security) {
-		global $connect;
+		
 		$time = '';
 		$price = '';
-		$rawHistory = mysqli_query($connect, "SELECT timestamp,price FROM game1" . $security . "history WHERE item='$this->item'");
+		$rawHistory = query( "SELECT timestamp,price FROM game1" . $security . "history WHERE item='$this->item'");
 		$numRows = $rawHistory->num_rows;
 
 		if ($numRows > 0) {
@@ -137,15 +137,14 @@ class orderManager {
 	public $id;
 
 	function placeOrder($type, $security, $isOrder = True) {
-		global $connect;
 		if ($type == 0) {
-			$trades = mysqli_query($connect,"SELECT * FROM game1" . $security . "orders WHERE type='1' AND item='$this->item' ORDER BY price DESC, timestamp ASC");
-			mysqli_query($connect,"UPDATE game1players SET $this->item=$this->item-$this->amt WHERE id='$this->id'");
+			$trades = query("SELECT * FROM game1" . $security . "orders WHERE type='1' AND item='$this->item' ORDER BY price DESC, timestamp ASC");
+			query("UPDATE game1players SET $this->item=$this->item-$this->amt WHERE id='$this->id'");
 			echo "<script>alert('$amt $this->item have been removed from your account to set up the order.');</script>";
 		} else {
-			$trades = mysqli_query($connect,"SELECT * FROM game1" . $security . "orders WHERE type='0' AND item='$this->item' ORDER BY price ASC, timestamp ASC");
+			$trades = query("SELECT * FROM game1" . $security . "orders WHERE type='0' AND item='$this->item' ORDER BY price ASC, timestamp ASC");
 			$cost = $this->amt * $this->price;
-			mysqli_query($connect,"UPDATE game1players SET balance=balance-$cost WHERE id='$this->id'");
+			query("UPDATE game1players SET balance=balance-$cost WHERE id='$this->id'");
 			echo "<script>alert('$cost dollars have been removed from your account to set up the order.');</script>";
 		}
 		
@@ -158,13 +157,12 @@ class orderManager {
 
 		//if the order was not able to be competely fulfilled add it to the database
 		if (($this->amt > 0) and ($isOrder == True)) {
-			mysqli_query($connect,"INSERT INTO game1" . $security . "orders(item,price,amt,id,type,timestamp) VALUES('$this->item','$this->price','$this->amt','$this->id','$type','$this->timestamp')");
+			query("INSERT INTO game1" . $security . "orders(item,price,amt,id,type,timestamp) VALUES('$this->item','$this->price','$this->amt','$this->id','$type','$this->timestamp')");
 		}
 
 	}
 
 	function completeOrder($trader2,$type,$security) {
-		global $connect;
 
 		//find smaller order and completely fulfill that order
 		if ($this->amt > $trader2['amt']) {
@@ -184,26 +182,26 @@ class orderManager {
 
 		//edit old order to be up to date with transaction and delete it if it fulfilled the whole order
 		$query = "UPDATE game1" . $security . "orders SET amt = amt - $amtChange WHERE id = '" . $trader2['id'] . "' AND timestamp = '" . $trader2['timestamp'] . "' LIMIT 1";
-		mysqli_query($connect,$query);
-		mysqli_query($connect,"DELETE FROM game1" . $security . "orders WHERE amt = '0'");
+		query($query);
+		query("DELETE FROM game1" . $security . "orders WHERE amt = '0'");
 
 		//update local representation of your order (added to db if anything is left over after merging with other orders) to match the transaction
 		$this->amt -= $amtChange;
 
 		//change balance and amt of product for the original orderer based on transaction
-		mysqli_query($connect,"UPDATE game1players SET $this->item = $this->item + $amtDiff WHERE id = '" . $this->id . "'");
-		mysqli_query($connect,"UPDATE game1players SET balance = balance + $balanceDiff WHERE id = '" . $trader2['id'] . "'");
+		query("UPDATE game1players SET $this->item = $this->item + $amtDiff WHERE id = '" . $this->id . "'");
+		query("UPDATE game1players SET balance = balance + $balanceDiff WHERE id = '" . $trader2['id'] . "'");
 
 		//add order to history (for graphs)
-		mysqli_query($connect,"INSERT INTO game1" . $security . "history(item,timestamp,price) VALUES('$this->item','$this->timestamp','" . $trader2['price'] . "')");
+		query("INSERT INTO game1" . $security . "history(item,timestamp,price) VALUES('$this->item','$this->timestamp','" . $trader2['price'] . "')");
 	}
 }
 
 function getUserOrders($id, $security) {
-	global $connect;
+	
 	$table = '';
 	$removeList = [];
-	$orders = mysqli_query($connect, "SELECT * FROM game1" . $security . "orders WHERE id='$id'");
+	$orders = query( "SELECT * FROM game1" . $security . "orders WHERE id='$id'");
 	while ($row = mysqli_fetch_array($orders)) {
 		if ($row['type'] == 0) {
 			$type = 'Ask';
@@ -237,7 +235,6 @@ function getUserOrders($id, $security) {
 //sees if you clicked to remove anything and gets a table of all of your orders
 function removalCheck($security) {
 	global $userCheckID;
-	global $connect;
 
 	$ordArray = getUserOrders($userCheckID, $security);
 	$ordTable = $ordArray[0];
@@ -247,19 +244,19 @@ function removalCheck($security) {
 		for ($x = 0; $x < count($remove); $x++) {
 			if ($_POST['removeOrder'] == $remove[$x]) {
 				$timestamp = $remove[$x];
-				$orderInfo = mysqli_fetch_assoc(mysqli_query($connect,"SELECT * FROM game1" . $security . "orders WHERE id='$userCheckID' AND timestamp='$timestamp'"));
+				$orderInfo = mysqli_fetch_assoc(query("SELECT * FROM game1" . $security . "orders WHERE id='$userCheckID' AND timestamp='$timestamp'"));
 				$cost = $orderInfo['amt'] * $orderInfo['price'];
 				$amt = $orderInfo['amt'];
 				$item = $orderInfo['item'];
 
-				mysqli_query($connect,"DELETE FROM game1" . $security . "orders WHERE timestamp='$timestamp' AND id='$userCheckID'");
+				query("DELETE FROM game1" . $security . "orders WHERE timestamp='$timestamp' AND id='$userCheckID'");
 
 				if ($orderInfo['type'] == '1') {
-					mysqli_query($connect,"UPDATE game1players SET balance=balance+$cost WHERE id='$userCheckID'");
+					query("UPDATE game1players SET balance=balance+$cost WHERE id='$userCheckID'");
 					echo "<script>alert('You have recieved $cost dollars.')</script>";
 					echo "<meta http-equiv='refresh' content='0'>";
 				} elseif ($orderInfo['type'] == '0') {
-					mysqli_query($connect,"UPDATE game1players SET $item=$item+$amt WHERE id='$userCheckID'");
+					query("UPDATE game1players SET $item=$item+$amt WHERE id='$userCheckID'");
 					echo "<script>alert('You have recieved $amt $item.')</script>";
 					echo "<meta http-equiv='refresh' content='0'>";					
 				}
@@ -267,6 +264,55 @@ function removalCheck($security) {
 		}	
 	}
 	return $ordTable;
+}
+
+function orderCheck($secType,$order) {
+	global $userCheckID;
+	global $playerData;
+	//processes trades
+	if (isset($_POST['amt'])) { //ISSUE test this
+		//do work not specific to buying/selling (minimizes repeated lines)
+		if ((isset($_POST['bid'])) or (isset($_POST['ask'])) or (isset($_POST['buyMarket'])) or (isset($_POST['sellMarket']))) {
+			$order->amt = $_POST['amt'];
+			$order->timestamp = time();
+			$order->id = $userCheckID;
+
+			if (isset($_POST['bid'])) {
+				$order->price = $_POST['price'];
+				if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
+					$order->placeOrder('1', 'prod');
+					echo "<meta http-equiv='refresh' content='0'>";
+				} else {
+					echo '<script>alert("need more money");</script>';
+				}
+			} elseif (isset($_POST['ask'])) {
+				$order->price = $_POST['price'];
+				if ($playerData[$order->item] >= $_POST['amt']) {
+					$order->placeOrder('0', 'prod');
+					echo "<meta http-equiv='refresh' content='0'>";
+				} else {
+					echo '<script>alert("need more items");</script>';
+				}
+			} elseif (isset($POST['buyMarket'])) {
+				$order->price = INF;
+				if ($playerData['balance'] >= $order->getMarketPrice($_POST['amt'],'prod')) {
+					$order->placeOrder('1', 'prod', False);
+					echo "<meta http-equiv='refresh' content='0'>";
+				} else {
+					echo '<script>alert("need more money");</script>';
+				}
+			} elseif (isset($_POST['sellMarket'])) {
+				$order->price = -INF;
+				if ($playerData[$order->item] >= $_POST['amt']) {
+					$order->placeOrder('0', 'prod', False);
+					echo "<meta http-equiv='refresh' content='0'>";
+				} else {
+					echo '<script>alert("need more items");</script>';
+				}
+			}
+		}
+	}
+	return $order;
 }
 
 ?>

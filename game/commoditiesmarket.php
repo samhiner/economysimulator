@@ -31,10 +31,7 @@ if (isset($_POST['itemLookup'])) {
 	$focusedItem = displayItem($_POST['buyMarket']);
 } elseif (isset($_POST['sellMarket'])) {
 	$focusedItem = displayItem($_POST['sellMarket']);
-} 
-
-
-else {
+} else {
 	$focusedItem = displayItem('Mglass');
 }
 
@@ -57,7 +54,7 @@ if (isset($_POST['amt'])) { //ISSUE test this
 
 			//ensures you have funds for trade
 			if($newBalance >= 0) {
-				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+				query("UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
 				//include('productdecay.php');
 				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
@@ -73,53 +70,18 @@ if (isset($_POST['amt'])) { //ISSUE test this
 			echo "UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'";
 			//ensures you have enough items for trade
 			if ($newYouItems >= 0) {
-				mysqli_query($connect,"UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
+				query("UPDATE game1players SET $itemName='$newYouItems',balance='$newBalance' WHERE id='$userCheckID'");
 				//include('productdecay.php'); ISSUE MAY TRIGGER BEFORE PLAYERDATA IS UPDATED CHEKC IT OUT
 				echo "<meta http-equiv='refresh' content='0'>";
 			} else {
 				echo "<script>alert('You do not have enough items to make this trade');</script>";
 			}
 		}
-	} elseif ((isset($_POST['bid'])) or (isset($_POST['ask'])) or (isset($_POST['buyMarket'])) or (isset($_POST['sellMarket']))) {
-		$myOrder->amt = $_POST['amt'];
-		$myOrder->timestamp = time();
-		$myOrder->id = $userCheckID;
-
-		if (isset($_POST['bid'])) {
-			$myOrder->price = $_POST['price'];
-			if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
-				$myOrder->placeOrder('1', 'prod');
-				echo "<meta http-equiv='refresh' content='0'>";
-			} else {
-				echo '<script>alert("need more money");</script>';
-			}
-		} elseif (isset($_POST['ask'])) {
-			$myOrder->price = $_POST['price'];
-			if ($playerData[$myOrder->item] >= $_POST['amt']) {
-				$myOrder->placeOrder('0', 'prod');
-				echo "<meta http-equiv='refresh' content='0'>";
-			} else {
-				echo '<script>alert("need more items");</script>';
-			}
-		} elseif (isset($POST['buyMarket'])) {
-			$myOrder->price = INF;
-			if ($playerData['balance'] >= $myOrder->getMarketPrice($_POST['amt'],'prod')) {
-				$myOrder->placeOrder('1', 'prod', False);
-				echo "<meta http-equiv='refresh' content='0'>";
-			} else {
-				echo '<script>alert("need more money");</script>';
-			}
-		} elseif (isset($_POST['sellMarket'])) {
-			$myOrder->price = -INF;
-			if ($playerData[$myOrder->item] >= $_POST['amt']) {
-				$myOrder->placeOrder('0', 'prod', False);
-				echo "<meta http-equiv='refresh' content='0'>";
-			} else {
-				echo '<script>alert("need more items");</script>';
-			}
-		}
 	}
 }
+
+orderCheck('prod',$myOrder);
+
 echo "You have $" . $playerData['balance'];
 echo $playerData[$supply1];
 ?>
@@ -194,7 +156,7 @@ echo $playerData[$supply1];
 					<?php echo $myOrder->displayOrders('prod'); ?>
 				</table><br>
 				<canvas id='priceGraph'></canvas>
-				You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>. One <span name='itemShowName'></span> costs $100.<br><br>
+				You have <?php echo $playerData[substr($focusedItem[0], 1)]; ?> <span name='itemShowName'></span>.<br><br>
 			</div>
 
 		</div>

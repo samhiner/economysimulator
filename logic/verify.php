@@ -15,9 +15,13 @@
 <?php
 
 session_start();
-$connect = mysqli_connect('localhost', 'root', NULL, 'econ_data');
-if (mysqli_connect_errno($connect)) {
-	echo 'Failed to connect';
+
+function query($query) {
+	$connect = mysqli_connect('localhost', 'root', NULL, 'econ_data');
+	if (mysqli_connect_errno($connect)) {
+		echo 'Failed to connect';
+	}
+	return mysqli_query($connect,$query);
 }
 
 //make sure they are logged in or send to login page
@@ -28,7 +32,7 @@ if (!isset($_SESSION['userData'])){
 }
 
 //ensure acct is linked to profile
-$playerTable = mysqli_query($connect,"SELECT * FROM game1players WHERE id = '$userCheckID'");
+$playerTable = query("SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerCount = mysqli_num_rows($playerTable);
 if ($playerCount != 1) {
 	header("location: http://localhost/economysimulator/acct/home"); //ISSUE depending on path of file (if index doesnt do full path and justy is straight on domain) using verify the redirect is different (whether contains ../)
@@ -65,7 +69,7 @@ $numMaterial3 = $playerData[$material3];
 $numSupply1 = $playerData[$itemList[$playerClass][8]];
 $numSupply2 = $playerData[$itemList[$playerClass][9]];
 
-$timeQuery = mysqli_query($connect,"SELECT * FROM game1time WHERE id='$userCheckID'");
+$timeQuery = query("SELECT * FROM game1time WHERE id='$userCheckID'");
 $timeArray = mysqli_fetch_array($timeQuery,MYSQLI_ASSOC);
 
 function limitZero($num) {
