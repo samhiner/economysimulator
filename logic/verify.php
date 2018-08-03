@@ -39,6 +39,8 @@ if ($playerCount != 1) {
 }
 
 $playerData = mysqli_fetch_array($playerTable,MYSQLI_ASSOC);
+$playerData = array_merge($playerData, mysqli_fetch_array(query("SELECT * FROM game1shares WHERE id='$userCheckID'"),MYSQLI_ASSOC));
+
 $playerClass = $playerData['class'];
 
 //KEY: 0, 1, 2: Visible Materials. 3: Visible Product. 4, 5, 6: Internal Materials. 7: Internal Product. 8, 9: Internal Supplies. 10, 11: Visible Supplies

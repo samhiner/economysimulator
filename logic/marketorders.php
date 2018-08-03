@@ -28,7 +28,6 @@ class orderManager {
 
 	function getViewOrders($type,$security) {
 		$item = $this->item;
-		
 
 		if ($type == 1) {
 			$orders = query("SELECT price, amt FROM game1" . $security . "orders WHERE type='1' AND item='$item' ORDER BY price DESC, timestamp ASC");
@@ -138,9 +137,14 @@ class orderManager {
 
 	function placeOrder($type, $security, $isOrder = True) {
 		if ($type == 0) {
+			if ($security == 'prod') {
+				$tableName = 'players';
+			} else {
+				$tableName = 'shares';
+			}
 			$trades = query("SELECT * FROM game1" . $security . "orders WHERE type='1' AND item='$this->item' ORDER BY price DESC, timestamp ASC");
-			query("UPDATE game1players SET $this->item=$this->item-$this->amt WHERE id='$this->id'");
-			echo "<script>alert('$amt $this->item have been removed from your account to set up the order.');</script>";
+			query("UPDATE game1$tableName SET $this->item=$this->item-$this->amt WHERE id='$this->id'");
+			echo "<script>alert('$this->amt $this->item have been removed from your account to set up the order.');</script>";
 		} else {
 			$trades = query("SELECT * FROM game1" . $security . "orders WHERE type='0' AND item='$this->item' ORDER BY price ASC, timestamp ASC");
 			$cost = $this->amt * $this->price;
@@ -171,14 +175,7 @@ class orderManager {
 			$amtChange = $this->amt;
 		}
 
-		//amtDiff always given to current user and taken from old (balanceDiff is opposite) so if current user did an ask then the signs are switched 
-		if ($type == 0) {
-			$amtDiff = $amtChange * -1;
-		} else {
-			$amtDiff = $amtChange;
-		}
-
-		$balanceDiff = $trader2['price'] * $amtDiff;
+		$balanceDiff = $trader2['price'] * $amtChange;
 
 		//edit old order to be up to date with transaction and delete it if it fulfilled the whole order
 		$query = "UPDATE game1" . $security . "orders SET amt = amt - $amtChange WHERE id = '" . $trader2['id'] . "' AND timestamp = '" . $trader2['timestamp'] . "' LIMIT 1";
@@ -188,8 +185,14 @@ class orderManager {
 		//update local representation of your order (added to db if anything is left over after merging with other orders) to match the transaction
 		$this->amt -= $amtChange;
 
+		if ($security == 'prod') {
+			$tableName = 'players';
+		} else {
+			$tableName = 'shares';
+		}
+
 		//change balance and amt of product for the original orderer based on transaction
-		query("UPDATE game1players SET $this->item = $this->item + $amtDiff WHERE id = '" . $this->id . "'");
+		query("UPDATE game1$tableName SET $this->item = $this->item + $amtChange WHERE id = '" . $this->id . "'");
 		query("UPDATE game1players SET balance = balance + $balanceDiff WHERE id = '" . $trader2['id'] . "'");
 
 		//add order to history (for graphs)
@@ -225,10 +228,6 @@ function getUserOrders($id, $security) {
 
 	}
 
-	if ($table == '') {
-		$table = '<tr><td colspan="5" style="text-align: center;">No Orders</td></tr>';
-	}
-
 	return [$table, $removeList];
 }
 
@@ -251,12 +250,18 @@ function removalCheck($security) {
 
 				query("DELETE FROM game1" . $security . "orders WHERE timestamp='$timestamp' AND id='$userCheckID'");
 
+				if ($security == 'prod') {
+					$tableName = 'players';
+				} else {
+					$tableName = 'shares';
+				}
+
 				if ($orderInfo['type'] == '1') {
 					query("UPDATE game1players SET balance=balance+$cost WHERE id='$userCheckID'");
 					echo "<script>alert('You have recieved $cost dollars.')</script>";
 					echo "<meta http-equiv='refresh' content='0'>";
 				} elseif ($orderInfo['type'] == '0') {
-					query("UPDATE game1players SET $item=$item+$amt WHERE id='$userCheckID'");
+					query("UPDATE game1$tableName SET $item=$item+$amt WHERE id='$userCheckID'");
 					echo "<script>alert('You have recieved $amt $item.')</script>";
 					echo "<meta http-equiv='refresh' content='0'>";					
 				}
@@ -280,7 +285,7 @@ function orderCheck($secType,$order) {
 			if (isset($_POST['bid'])) {
 				$order->price = $_POST['price'];
 				if ($playerData['balance'] >= $_POST['amt'] * $_POST['price']) {
-					$order->placeOrder('1', 'prod');
+					$order->placeOrder('1', $secType);
 					echo "<meta http-equiv='refresh' content='0'>";
 				} else {
 					echo '<script>alert("need more money");</script>';
@@ -288,15 +293,15 @@ function orderCheck($secType,$order) {
 			} elseif (isset($_POST['ask'])) {
 				$order->price = $_POST['price'];
 				if ($playerData[$order->item] >= $_POST['amt']) {
-					$order->placeOrder('0', 'prod');
+					$order->placeOrder('0', $secType);
 					echo "<meta http-equiv='refresh' content='0'>";
 				} else {
 					echo '<script>alert("need more items");</script>';
 				}
 			} elseif (isset($POST['buyMarket'])) {
 				$order->price = INF;
-				if ($playerData['balance'] >= $order->getMarketPrice($_POST['amt'],'prod')) {
-					$order->placeOrder('1', 'prod', False);
+				if ($playerData['balance'] >= $order->getMarketPrice($_POST['amt'],$secType)) {
+					$order->placeOrder('1', $secType, False);
 					echo "<meta http-equiv='refresh' content='0'>";
 				} else {
 					echo '<script>alert("need more money");</script>';
@@ -304,7 +309,7 @@ function orderCheck($secType,$order) {
 			} elseif (isset($_POST['sellMarket'])) {
 				$order->price = -INF;
 				if ($playerData[$order->item] >= $_POST['amt']) {
-					$order->placeOrder('0', 'prod', False);
+					$order->placeOrder('0', $secType, False);
 					echo "<meta http-equiv='refresh' content='0'>";
 				} else {
 					echo '<script>alert("need more items");</script>';

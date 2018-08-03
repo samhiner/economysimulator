@@ -26,12 +26,13 @@
 		$result = mysqli_query($connect,"SELECT * FROM users WHERE username = '$cleanUsername'");
 		$count = mysqli_num_rows($result);
 
-		if($count == 0) {
+		$blacklistNames = ['id', 'admin'];
+		if ((in_array($cleanUsername, $blacklistNames)) or ($count != 0)) {
+			$errorMessage = "An account with this username already exists. Please choose another username.";			
+		} elseif($count == 0) {
 			mysqli_query($connect,"INSERT INTO users(username,password) VALUES('$cleanUsername','$cleanPassword')");
 			$hideAll = "<script>document.getElementById('all').style.display = 'none';</script>";
 			$hideThank = "<script>document.getElementById('thank').style.display = 'block';</script>";
-		} else {
-			$errorMessage = "An account with this username already exists. Please choose another username.";
 		}
 	}
 ?>
@@ -70,7 +71,7 @@
 <p id="noPassMatch" class='noVis'>Passwords do not match</p>
   
 <div id='thank' class='noVis'>
-  <p>Thank you for registering for The Economy Simulator. <a href='http://localhost/economysimulator/acct/login.php'>Log in</a> using the credentials you entered here.</p>
+  <p>Thank you for registering for The Economy Simulator. <a href='http://localhost/economysimulator/acct/login'>Log in</a> using the credentials you entered here.</p>
 </div>
 
 <?php

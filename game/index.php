@@ -65,7 +65,11 @@ if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 
 
 
-$ordTable = removalCheck('prod');
+$ordTable = removalCheck('prod') . removalCheck('sec');
+
+if ($ordTable == '') {
+	$ordTable = '<tr><td colspan="5" style="text-align: center;">No Orders</td></tr>';
+}
 
 ?>
 <html>
@@ -76,7 +80,7 @@ $ordTable = removalCheck('prod');
 </head>
 <body>
 <div class='pageBody'>
-	<h3 style='margin-top: 0;'>Your Supplies:</h3>
+	<h3 style='margin-top: 0;'>Your Company:</h3>
 
 	<?php 
 	echo "You have $" . $playerData["balance"] . "<br>";
