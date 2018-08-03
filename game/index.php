@@ -80,15 +80,16 @@ if ($ordTable == '') {
 </head>
 <body>
 <div class='pageBody'>
-	<h3 style='margin-top: 0;'>Your Company:</h3>
+	<h3 style='margin-top: 0; margin-bottom: 0;'>Your Company:</h3>
 
 	<?php 
-	echo "You have $" . $playerData["balance"] . "<br>";
+	/*echo "You have $" . $playerData["balance"] . "<br>";
 	echo "You have " . $playerData[$material1] . " " . $itemList[$playerClass][0] . "<br>";
 	echo "You have " . $playerData[$material2] . " " . $itemList[$playerClass][1] . "<br>";
 	echo "You have " . $playerData[$material3] . " " . $itemList[$playerClass][2] . "<br>";
-	echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];
-	?><br><br>
+	echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];*/
+	var_dump($playerData);
+	?><br>
 
 
 	<table border='1'>
@@ -101,9 +102,6 @@ if ($ordTable == '') {
 		</tr>
 		<?php echo $ordTable; ?>
 	</table>
-
-	<br><p>*Insert more data.*</p><br><br><br>
-
 	<h3>Your Factory:</h3>
 	Product: 1 <?php echo $itemList[$playerClass][3]; ?> <br>
 	Materials: 1 <?php echo $itemList[$playerClass][0]; ?>, 1 <?php echo $itemList[$playerClass][1]; ?>, and 1 <?php echo $itemList[$playerClass][2]; ?>
@@ -198,9 +196,9 @@ if ($ordTable == '') {
 		<p>One product will be used up in </p>
 		<p id='prod2CountDown'>&infin; Hours, &infin; Minutes, &infin; Seconds</p>
 	</details>
+	<br>Go to the Commodities Market to buy more of these items
 
-
-	<br><br>Go to the Commodities Market to buy more of these items
+	
 </div>
 </body>
 </html>

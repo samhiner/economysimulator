@@ -134,8 +134,8 @@ echo $playerData[$supply1];
 			<div class='leftCol' ='float:left;'>
 				<h4 style='margin-top: 0%;'>Limit Order</h4>
 				<form method='post'>
-					<input type='text' name='amt' placeholder='Amount'>
-					<input type='text' name='price' placeholder='Price'><br>
+					<input type='text' name='price' placeholder='Price per Item'>
+					<input type='text' name='amt' placeholder='Amount'><br>
 					<button type='submit' name='bid' value='<?php echo $focusedItem[0]; ?>'>Bid</button>
 					<button type='submit' name='ask' value='<?php echo $focusedItem[0]; ?>'>Ask</button>
 				</form><br>

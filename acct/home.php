@@ -30,12 +30,14 @@ if (isset($_POST['a'])) {
 			$remShares = $_POST['shares'];
 			$shares = 100 - $remShares;
 			$seedCap = 1000 + 5000 - ($remShares * 50);
+			$tomorrow = $time + 86400;
 
 			mysqli_query($connect,"INSERT INTO game1players(id,class,balance) VALUES('$userCheckID','$x','$seedCap')");
 			mysqli_query($connect,"INSERT INTO game1time(id) VALUES('$userCheckID')");
 			mysqli_query($connect, "ALTER TABLE game1shares ADD $username INT(11) DEFAULT 0");
 			mysqli_query($connect, "INSERT INTO game1shares(id,$username) VALUES('$userCheckID', '$shares')");
 			mysqli_query($connect, "INSERT INTO game1secorders(item,type,price,amt,timestamp,id) VALUES('$username','0','50,'$remShares','$time','0')");
+			mysqli_query($connect, "INSERT INTO game1voting(company,votingends) VALUES('$username','$tomorrow')");
 		}
 	}
 	header('location: http://localhost/economysimulator/game/index');
