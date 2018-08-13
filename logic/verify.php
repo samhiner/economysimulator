@@ -35,11 +35,26 @@ if (!isset($_SESSION['userData'])){
 $playerTable = query("SELECT * FROM game1players WHERE id = '$userCheckID'");
 $playerCount = mysqli_num_rows($playerTable);
 if ($playerCount != 1) {
-	header("location: http://localhost/economysimulator/acct/home"); //ISSUE depending on path of file (if index doesnt do full path and justy is straight on domain) using verify the redirect is different (whether contains ../)
+	header("location: http://localhost/economysimulator/acct/home"); 
 }
 
 $playerData = mysqli_fetch_array($playerTable,MYSQLI_ASSOC);
 $playerData = array_merge($playerData, mysqli_fetch_array(query("SELECT * FROM game1shares WHERE id='$userCheckID'"),MYSQLI_ASSOC));
+
+$wonGame = mysqli_fetch_array(query("SELECT * FROM gamewon"),MYSQLI_NUM)[0];
+
+if ($wonGame) {
+	$end = True;
+} else if ($playerData['balance'] >= 10000) {
+	query("UPDATE gamewon set won=1");
+	$end = True;
+} else {
+	$end = False;
+}
+
+if ($end) {
+	echo "<script>alert('The game is now over, you can continue to play to test it out if you would like.');</script>";
+}
 
 $playerClass = $playerData['class'];
 

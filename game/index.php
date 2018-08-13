@@ -63,8 +63,6 @@ if (($numSupply1 <= 0) or ($numSupply2 <= 0)) {
 	$errorMessage = "Your factories are unable to produce anything until you have more $showSupply1 and/or $showSupply2";
 }
 
-
-
 $ordTable = removalCheck('prod') . removalCheck('sec');
 
 if ($ordTable == '') {

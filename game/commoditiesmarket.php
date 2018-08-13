@@ -142,7 +142,7 @@ echo $playerData[$supply1];
 				
 				<h4>Market Order</h4>
 				<form method='post'>
-					<input type='text' name='amt' placeholder='Amount'><br>
+					<input type='number' name='amt' placeholder='Amount'><br>
 					<button type='submit' name='buyMarket' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
 					<button type='submit' name='sellMarket' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
 				</form>
@@ -165,7 +165,7 @@ echo $playerData[$supply1];
 		<div id='<?php echo substr($focusedItem[0], 1); ?>'>
 			<h3><span name='itemShowName'></span></h3>
 			<form method='post'>
-				<input type='text' name='amt' placeholder='Amount'><br>
+				<input type='number' name='amt' placeholder='Amount'><br>
 				<button type='submit' name='buy' value='<?php echo $focusedItem[0]; ?>'>Buy</button>
 				<button type='submit' name='sell' value='<?php echo $focusedItem[0]; ?>'>Sell</button>
 			</form>

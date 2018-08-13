@@ -71,15 +71,15 @@ echo "You have $" . $playerData['balance'];
 			<div class='leftCol' ='float:left;'>
 				<h4 style='margin-top: 0%;'>Limit Order</h4>
 				<form method='post'>
-					<input type='text' name='price' placeholder='Price per Share'>
-					<input type='text' name='amt' placeholder='Amount'><br>
+					<input type='number' name='price' placeholder='Price per Share'>
+					<input type='number' name='amt' placeholder='Amount'><br>
 					<button type='submit' name='bid' value='<?php echo $focusedItem; ?>'>Bid</button>
 					<button type='submit' name='ask' value='<?php echo $focusedItem; ?>'>Ask</button>
 				</form><br>
 				
 				<h4>Market Order</h4>
 				<form method='post'>
-					<input type='text' name='amt' placeholder='Amount'><br>
+					<input type='number' name='amt' placeholder='Amount'><br>
 					<button type='submit' name='buyMarket' value='<?php echo $focusedItem; ?>'>Buy</button>
 					<button type='submit' name='sellMarket' value='<?php echo $focusedItem; ?>'>Sell</button>
 				</form>
