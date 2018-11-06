@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `game1shares` (
 --
 
 INSERT INTO `game1shares` (`id`) VALUES
-(0, 0, 25, 0);
+(0);
 
 -- --------------------------------------------------------
 
