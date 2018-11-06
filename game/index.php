@@ -81,12 +81,15 @@ if ($ordTable == '') {
 	<h3 style='margin-top: 0; margin-bottom: 0;'>Your Company:</h3>
 
 	<?php 
-	/*echo "You have $" . $playerData["balance"] . "<br>";
-	echo "You have " . $playerData[$material1] . " " . $itemList[$playerClass][0] . "<br>";
-	echo "You have " . $playerData[$material2] . " " . $itemList[$playerClass][1] . "<br>";
-	echo "You have " . $playerData[$material3] . " " . $itemList[$playerClass][2] . "<br>";
-	echo "You have " . $playerData[$product] . " " . $itemList[$playerClass][3];*/
-	var_dump($playerData);
+	echo "You have $" . $playerData["balance"] . "<br>";
+	echo "You have " . $playerData['glass'] . " Glass <br>";
+	echo "You have " . $playerData['plastic'] . " Plastic <br>";
+	echo "You have " . $playerData['alum'] . " Aluminum <br>";
+	echo "You have " . $playerData['sili'] . " Silicon <br>";
+	echo "You have " . $playerData['steel'] . " Steel <br>";
+	echo "You have " . $playerData['bike'] . " Bike <br>";
+	echo "You have " . $playerData['tv'] . " TV <br>";
+	echo "You have " . $playerData['shield'] . " Shield <br>";
 	?><br>
 
 

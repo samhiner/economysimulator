@@ -57,7 +57,7 @@
   
   <!--Enter credentials-->
   <form method="post" action="">
-    Username:<br><input type="text" name="username" onkeyup="genVal('user')" onkeyup ="" required><br><br>
+    Username:<br><input type="text" name="username" onkeyup="genVal()" id='username' onkeyup ="" required><br><br>
     Password:<br><input type="password" name="password" onkeyup="passVal()" required><br><br>
     Confirm Password:<br><input type="password" name="passwordconf" onkeyup="passVal()" required><br><br>
     
@@ -101,9 +101,10 @@ function passVal() {
 }
 
 /*Hides and shows submit button based on fields being filled in. Also hides error message by default.*/
-function genVal(type) {
+function genVal() {
+	type = document.getElementById('username')
 	document.getElementById("errorField").classList.add('hidden');
-	if (type.value.length < 1) {
+	if (type.value.length < 1) { //////TODO i could have a bad username and a good password and still register
 		document.getElementById('submitButton').disabled = true;
 	} else {
 		passVal()
