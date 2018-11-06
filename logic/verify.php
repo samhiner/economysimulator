@@ -41,6 +41,7 @@ if ($playerCount != 1) {
 $playerData = mysqli_fetch_array($playerTable,MYSQLI_ASSOC);
 $playerData = array_merge($playerData, mysqli_fetch_array(query("SELECT * FROM game1shares WHERE id='$userCheckID'"),MYSQLI_ASSOC));
 
+/*
 $wonGame = mysqli_fetch_array(query("SELECT * FROM gamewon"),MYSQLI_NUM)[0];
 
 if ($wonGame) {
@@ -54,7 +55,7 @@ if ($wonGame) {
 
 if ($end) {
 	echo "<script>alert('The game is now over, you can continue to play to test it out if you would like.');</script>";
-}
+}*/
 
 $playerClass = $playerData['class'];
 
